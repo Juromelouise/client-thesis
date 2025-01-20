@@ -6,19 +6,41 @@ import {
   Drawer,
   DrawerContent,
   DrawerHeader,
-  DrawerFooter,
   Button,
   useDisclosure,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@heroui/react";
-import { HiMenu, HiOutlineUserCircle } from "react-icons/hi";
+import {
+  HiMenu,
+  HiOutlineUserCircle,
+  HiOutlineLogin,
+  HiOutlineLogout,
+} from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getUser, logout } from "../../utils/helpers";
 
 export default function Header() {
+  const [user, setUser] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
 
   const handleOpen = () => {
     onOpen();
+  };
+
+  useEffect(() => {
+    setUser(getUser());
+  }, []);
+
+  const handleLogout = () => {
+    logout(() => {
+      navigate("/login");
+      window.location.reload();
+    });
   };
 
   return (
@@ -30,22 +52,26 @@ export default function Header() {
         <DrawerContent>
           <div className="flex flex-col gap-4 p-4">
             <DrawerHeader className="text-lg font-semibold">MENU</DrawerHeader>
+            {user && user !== false && user.role === "admin" ? (
+              <Button
+                color="primary"
+                variant="light"
+                className="w-full text-left"
+                onPress={() => {
+                  navigate("/dashboard");
+                  onClose();
+                }}
+              >
+                Dashboard
+              </Button>
+            ) : (
+              <></>
+            )}
             <Button
               color="primary"
               variant="light"
               className="w-full text-left"
-              onClick={() => {
-                navigate("/dashboard");
-                onClose();
-              }}
-            >
-              Dashboard
-            </Button>
-            <Button
-              color="primary"
-              variant="light"
-              className="w-full text-left"
-              onClick={() => {
+              onPress={() => {
                 navigate("/about");
                 onClose();
               }}
@@ -56,7 +82,7 @@ export default function Header() {
               color="primary"
               variant="light"
               className="w-full text-left"
-              onClick={() => {
+              onPress={() => {
                 navigate("/");
                 onClose();
               }}
@@ -67,7 +93,7 @@ export default function Header() {
               color="primary"
               variant="light"
               className="w-full text-left"
-              onClick={() => {
+              onPress={() => {
                 navigate("/fyp");
                 onClose();
               }}
@@ -94,11 +120,48 @@ export default function Header() {
         </NavbarItem>
 
         {/* User Icon */}
-        <Link to="/profile">
-          <NavbarItem>
-            <HiOutlineUserCircle className="text-2xl text-gray-600 cursor-pointer" />
-          </NavbarItem>
-        </Link>
+        {user && user !== false ? (
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                color="primary"
+                variant="light"
+                className="flex items-center gap-2"
+              >
+                <HiOutlineUserCircle className="text-2xl text-gray-600 cursor-pointer" />
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu>
+              <DropdownItem onPress={() => navigate("/profile")}>
+                <div className="flex items-center gap-2">
+                  <img
+                    src="https://i.pravatar.cc/150?img=3"
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold">{user.name}</p>
+                    <p className="text-xs text-gray-600">{user.email}</p>
+                  </div>
+                </div>
+              </DropdownItem>
+              <DropdownItem onPress={handleLogout}>
+                <HiOutlineLogout className="text-xl mr-2" />
+                Logout
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        ) : (
+          <Button
+            color="primary"
+            variant="solid"
+            className="flex items-center gap-2 text-white transition-colors duration-300 hover:bg-blue-600"
+            onPress={() => navigate("/login")}
+          >
+            <HiOutlineLogin className="text-xl" />
+            Sign In
+          </Button>
+        )}
       </NavbarContent>
     </Navbar>
   );

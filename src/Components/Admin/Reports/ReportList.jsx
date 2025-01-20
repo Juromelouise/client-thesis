@@ -10,9 +10,11 @@ import {
   Button,
 } from "@heroui/react";
 import apiClient from "../../../utils/apiClient";
+import { useNavigate } from "react-router-dom";
 
 const ReportList = () => {
   const [data, setData] = useState([]);
+  const navigate = useNavigate();
 
   const getData = async () => {
     const { data } = await apiClient.get(`/report/admin/report`);
@@ -36,6 +38,7 @@ const ReportList = () => {
           Illegal Parking Reports
         </h3>
         <Table
+          selectionMode="single"
           aria-label="Example table with dynamic content"
           className="w-full"
         >
@@ -63,7 +66,13 @@ const ReportList = () => {
                     {formatDate(report.createdAt)}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Button auto flat color="primary" className="mr-2">
+                    <Button
+                      auto
+                      flat
+                      color="primary"
+                      className="mr-2"
+                      onPress={() => navigate(`/single/report/${report._id}`)}
+                    >
                       View
                     </Button>
                     <Button auto flat color="error">

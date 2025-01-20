@@ -39,5 +39,7 @@ export const logout = (next) => {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
   }
-  next();
+  if (next && typeof next === "function") {
+    next();
+  }
 };

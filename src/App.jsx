@@ -7,6 +7,7 @@ import AnnouncementPage from "./Components/Home/Announcement";
 import Login from "./Components/User/Login";
 import Dashboard from "./Components/Admin/Dashboard";
 import FYP from "./Components/Home/FYP";
+import ViewReport from "./Components/Admin/Reports/ViewReport";
 
 function App() {
   return (
@@ -29,6 +30,11 @@ function App() {
             exact="true"
           />
           <Route path="/dashboard" element={<Dashboard />} exact="true" />
+          <Route
+            path="/single/report/:id"
+            element={<ViewReport />}
+            exact="true"
+          />
         </Routes>
       </Router>
     </>

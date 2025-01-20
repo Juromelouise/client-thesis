@@ -37,6 +37,7 @@ const ObstructionList = () => {
           Obstruction Reports
         </h3>
         <Table
+          selectionMode="single"
           aria-label="Example table with dynamic content"
           className="w-full"
         >
