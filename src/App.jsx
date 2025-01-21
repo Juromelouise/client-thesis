@@ -8,6 +8,7 @@ import Login from "./Components/User/Login";
 import Dashboard from "./Components/Admin/Dashboard";
 import FYP from "./Components/Home/FYP";
 import ViewReport from "./Components/Admin/Reports/ViewReport";
+import ViewObstruction from "./Components/Admin/Reports/ViewObstructions";
 
 function App() {
   return (
@@ -33,6 +34,11 @@ function App() {
           <Route
             path="/single/report/:id"
             element={<ViewReport />}
+            exact="true"
+          />
+           <Route
+            path="/single/obstruction/:id"
+            element={<ViewObstruction />}
             exact="true"
           />
         </Routes>

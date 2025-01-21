@@ -75,9 +75,9 @@ const ReportList = () => {
                     >
                       View
                     </Button>
-                    <Button auto flat color="error">
+                    {/* <Button auto flat color="error">
                       Delete
-                    </Button>
+                    </Button> */}
                   </TableCell>
                 </TableRow>
               ))}

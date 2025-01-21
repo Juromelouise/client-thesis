@@ -10,10 +10,11 @@ import {
   Button,
 } from "@heroui/react";
 import apiClient from "../../../utils/apiClient";
+import { useNavigate } from "react-router-dom";
 
 const ObstructionList = () => {
   const [data, setData] = useState([]);
-
+  const navigate = useNavigate();
   const getData = async () => {
     const { data } = await apiClient.get(`/report/admin/obstruction`);
     setData(data.obstructions);
@@ -62,12 +63,12 @@ const ObstructionList = () => {
                   {formatDate(report?.createdAt)}
                 </TableCell>
                 <TableCell className="text-center">
-                  <Button auto flat color="primary" className="mr-2">
+                  <Button auto flat color="primary" className="mr-2" onPress={() => navigate(`/single/obstruction/${report._id}`)}>
                     View
                   </Button>
-                  <Button auto flat color="error">
+                  {/* <Button auto flat color="error">
                     Delete
-                  </Button>
+                  </Button> */}
                 </TableCell>
               </TableRow>
             ))}

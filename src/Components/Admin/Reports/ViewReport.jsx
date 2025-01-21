@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Spinner, Divider, Badge } from "@heroui/react";
+import { Card, Button, Spinner, Divider, Badge, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../utils/apiClient";
 
@@ -8,6 +8,7 @@ function ViewReport() {
   const navigate = useNavigate();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState("Pending");
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -47,12 +48,20 @@ function ViewReport() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  const handleStatusChange = (newStatus) => {
+    setStatus(newStatus);
+    // You can add logic here to update the status in the backend if needed
+  };
+
   return (
     <div className="p-6 mt-14">
       <Card className="shadow-lg max-w-4xl mx-auto p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-3xl font-semibold">Report Details</h2>
-          <Button flat color="primary" onPress={() => navigate(-1)}>
+          <Button
+            className="transition-colors duration-300 bg-blue-500 hover:bg-blue-600 text-white"
+            onClick={() => navigate(-1)}
+          >
             Go Back
           </Button>
         </div>
@@ -87,6 +96,41 @@ function ViewReport() {
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Description:</p>
             <p className="text-gray-700">{report.description}</p>
+          </div>
+          <div className="mb-6">
+            <p className="text-lg font-bold mb-1">Images:</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {report.images.map((image, index) => (
+                <img
+                  key={index}
+                  src={image.url}
+                  alt={`Report Image ${index + 1}`}
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+              ))}
+            </div>
+          </div>
+          <div className="mb-6">
+            <p className="text-lg font-bold mb-1">Reporter:</p>
+            <p className="text-gray-700">{report.reporter?.firstName} {report.reporter?.lastName}</p>
+            <p className="text-gray-700">{report.reporter?.email}</p>
+          </div>
+          <div className="mb-6">
+            <p className="text-lg font-bold mb-1">Status:</p>
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg transition-colors duration-300 hover:from-pink-600 hover:to-yellow-600"
+                  radius="full"
+                >
+                  {status}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu>
+                <DropdownItem onClick={() => handleStatusChange("Approved")}>Approved</DropdownItem>
+                <DropdownItem onClick={() => handleStatusChange("Disapproved")}>Disapproved</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
           </div>
         </div>
       </Card>
