@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Spinner, Divider, Badge, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
+import {
+  Card,
+  Button,
+  Spinner,
+  Divider,
+  Badge,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../utils/apiClient";
 
@@ -8,14 +18,15 @@ function ViewReport() {
   const navigate = useNavigate();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState("Pending");
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
     const fetchReport = async () => {
       try {
         const { data } = await apiClient.get(`/report/admin/report/${id}`);
         setReport(data.report);
-        console.log(data);
+        setStatus(data.report.status);
+        // console.log(data);
       } catch (error) {
         console.error("Error fetching report:", error);
       } finally {
@@ -48,9 +59,20 @@ function ViewReport() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const handleStatusChange = (newStatus) => {
-    setStatus(newStatus);
-    // You can add logic here to update the status in the backend if needed
+  const handleStatusChange = async (newStatus) => {
+    try {
+      const { data } = await apiClient.put(
+        `/report/admin/report/status/${id}`,
+        {
+          status: newStatus,
+        }
+      );
+      setReport(data.report);
+      setStatus(data.report.status);
+      console.log(data);
+    } catch (error) {
+      console.error("Error updating report status:", error);
+    }
   };
 
   return (
@@ -60,7 +82,7 @@ function ViewReport() {
           <h2 className="text-3xl font-semibold">Report Details</h2>
           <Button
             className="transition-colors duration-300 bg-blue-500 hover:bg-blue-600 text-white"
-            onClick={() => navigate(-1)}
+            onPress={() => navigate(-1)}
           >
             Go Back
           </Button>
@@ -112,7 +134,9 @@ function ViewReport() {
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Reporter:</p>
-            <p className="text-gray-700">{report.reporter?.firstName} {report.reporter?.lastName}</p>
+            <p className="text-gray-700">
+              {report.reporter?.firstName} {report.reporter?.lastName}
+            </p>
             <p className="text-gray-700">{report.reporter?.email}</p>
           </div>
           <div className="mb-6">
@@ -127,8 +151,20 @@ function ViewReport() {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-                <DropdownItem onClick={() => handleStatusChange("Approved")}>Approved</DropdownItem>
-                <DropdownItem onClick={() => handleStatusChange("Disapproved")}>Disapproved</DropdownItem>
+                {status === "Pending" && (
+                  <>
+                    <DropdownItem
+                      onPress={() => handleStatusChange("Approved")}
+                    >
+                      Approved
+                    </DropdownItem>
+                    <DropdownItem
+                      onPress={() => handleStatusChange("Disapproved")}
+                    >
+                      Disapproved
+                    </DropdownItem>
+                  </>
+                )}
               </DropdownMenu>
             </Dropdown>
           </div>
