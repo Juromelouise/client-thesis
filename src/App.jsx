@@ -9,6 +9,8 @@ import Dashboard from "./Components/Admin/Dashboard";
 import FYP from "./Components/Home/FYP";
 import ViewReport from "./Components/Admin/Reports/ViewReport";
 import ViewObstruction from "./Components/Admin/Reports/ViewObstructions";
+import AnnouncementDetails from "./Components/Home/AnnouncementDetails";
+import Register from "./Components/User/Register";
 
 function App() {
   return (
@@ -22,21 +24,27 @@ function App() {
 
           {/* USER */}
           <Route path="/login" element={<Login />} exact="true" />
-
-          {/* ADMIN */}
-          <Route path="/report/list" element={<ReportList />} exact="true" />
+          <Route path="/register" element={<Register />} exact="true" />
+          <Route
+            path="/announcement/:id"
+            element={<AnnouncementDetails />}
+            exact="true"
+          />
           <Route
             path="/announcement"
             element={<AnnouncementPage />}
             exact="true"
           />
+
+          {/* ADMIN */}
+          <Route path="/report/list" element={<ReportList />} exact="true" />
           <Route path="/dashboard" element={<Dashboard />} exact="true" />
           <Route
             path="/single/report/:id"
             element={<ViewReport />}
             exact="true"
           />
-           <Route
+          <Route
             path="/single/obstruction/:id"
             element={<ViewObstruction />}
             exact="true"

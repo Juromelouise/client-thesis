@@ -1,11 +1,13 @@
 import { Card, Button } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
+import { useNavigate } from "react-router-dom";
 import apiClient from "../../utils/apiClient";
 
-const AnnouncementPage = () => {
+const AnnouncementPage = forwardRef(function AnnouncementPage(props, ref) {
   const [announcements, setAnnouncements] = useState([]);
+  const navigate = useNavigate();
 
-  const announcementsa = async () => {
+  const fetchAnnouncements = async () => {
     try {
       const response = await apiClient.get(`/announce/show`);
       console.log(response.data.announcement);
@@ -15,8 +17,12 @@ const AnnouncementPage = () => {
     }
   };
 
+  useImperativeHandle(ref, () => ({
+    fetchAnnouncements,
+  }));
+
   useEffect(() => {
-    announcementsa();
+    fetchAnnouncements();
   }, []);
 
   return (
@@ -32,14 +38,19 @@ const AnnouncementPage = () => {
               <h3 className="text-lg font-semibold mb-2">
                 {announcement.title}
               </h3>
-              <p className="text-gray-700">{announcement.description}</p>
+              <p className="text-gray-700 line-clamp-2">{announcement.description}</p>
             </div>
-            <Button className="mt-4 bg-purple-500 text-white">See more</Button>
+            <Button
+              className="mt-4 bg-purple-500 text-white transition-colors duration-300 hover:bg-purple-600"
+              onClick={() => navigate(`/announcement/${announcement._id}`)}
+            >
+              See more
+            </Button>
           </Card>
         ))}
       </div>
     </div>
   );
-};
+});
 
 export default AnnouncementPage;

@@ -12,7 +12,7 @@ import {
 import apiClient from "../../../utils/apiClient";
 import { useNavigate } from "react-router-dom";
 
-const ReportList = () => {
+const ReportList = ({ filterStatus }) => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
 
@@ -30,6 +30,10 @@ const ReportList = () => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  const filteredData = filterStatus
+    ? data.filter((report) => report.status === filterStatus)
+    : data;
 
   return (
     <div className="p-2">
@@ -52,8 +56,8 @@ const ReportList = () => {
             <TableColumn className="text-center w-3/12">Actions</TableColumn>
           </TableHeader>
           <TableBody>
-            {data &&
-              data.map((report) => (
+            {filteredData &&
+              filteredData.map((report) => (
                 <TableRow key={report._id}>
                   <TableCell className="text-center">{report?._id}</TableCell>
                   <TableCell className="text-center">

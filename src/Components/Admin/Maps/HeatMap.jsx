@@ -1,4 +1,5 @@
-import { GoogleMap, useLoadScript, HeatmapLayer } from "@react-google-maps/api";
+import { GoogleMap, useLoadScript, HeatmapLayer, Marker, Circle } from "@react-google-maps/api";
+import { useState, useEffect } from "react";
 
 const heatmapData = [
   { lat: 14.5176, lng: 121.0453 },
@@ -22,11 +23,34 @@ const options = {
   opacity: 0.6,
 };
 
+const markerPosition = {
+  lat: 14.5176,
+  lng: 121.0453,
+};
+
+const circleOptions = {
+  strokeColor: "#FF0000",
+  strokeOpacity: 0.8,
+  strokeWeight: 2,
+  fillColor: "#FF0000",
+  fillOpacity: 0.35,
+  center: markerPosition,
+  radius: 100,
+};
+
 const HeatMap = () => {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     libraries: ["visualization"],
   });
+
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  useEffect(() => {
+    if (isLoaded) {
+      setMapLoaded(true);
+    }
+  }, [isLoaded]);
 
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading Maps</div>;
@@ -39,6 +63,12 @@ const HeatMap = () => {
         )}
         options={options}
       />
+      {mapLoaded && (
+        <>
+          <Marker position={markerPosition} />
+          <Circle options={circleOptions} />
+        </>
+      )}
     </GoogleMap>
   );
 };

@@ -12,7 +12,7 @@ import {
 import apiClient from "../../../utils/apiClient";
 import { useNavigate } from "react-router-dom";
 
-const ObstructionList = () => {
+const ObstructionList = ({ filterStatus }) => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const getData = async () => {
@@ -29,6 +29,10 @@ const ObstructionList = () => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  const filteredData = filterStatus
+    ? data.filter((report) => report.status === filterStatus)
+    : data;
 
   return (
     <div className="p-2">
@@ -50,7 +54,7 @@ const ObstructionList = () => {
             <TableColumn className="text-center w-3/12">Actions</TableColumn>
           </TableHeader>
           <TableBody>
-            {data.map((report) => (
+            {filteredData.map((report) => (
               <TableRow key={report.id}>
                 <TableCell className="text-center">{report?._id}</TableCell>
                 <TableCell className="text-center">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Button,
   Modal,
@@ -8,7 +8,13 @@ import {
   ModalFooter,
   useDisclosure,
   Input,
+  Textarea,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@heroui/react";
+import { HiChevronDown } from "react-icons/hi";
 import ReportList from "./Reports/ReportList";
 import ObstructionList from "./Reports/ObstructionList";
 import HeatMap from "./Maps/HeatMap";
@@ -20,19 +26,21 @@ const Dashboard = () => {
   const [activePage, setActivePage] = useState("Charts");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [filterStatus, setFilterStatus] = useState("Pending");
+  const announcementPageRef = useRef(null);
 
   const renderContent = () => {
     switch (activePage) {
       case "Charts":
         return <div>Charts Content</div>;
       case "Illegal parking":
-        return <ReportList />;
+        return <ReportList filterStatus={filterStatus} />;
       case "Obstruction":
-        return <ObstructionList />;
+        return <ObstructionList filterStatus={filterStatus} />;
       case "Heatmap":
         return <HeatMap />;
       case "Announcement":
-        return <AnnouncementPage />;
+        return <AnnouncementPage ref={announcementPageRef} />;
       default:
         return <div>Select a page</div>;
     }
@@ -61,7 +69,7 @@ const Dashboard = () => {
                   setTitle(e.target.value);
                 }}
               />
-              <Input
+              <Textarea
                 label="Description"
                 variant="underlined"
                 isRequired
@@ -69,6 +77,7 @@ const Dashboard = () => {
                 onChange={(e) => {
                   setDescription(e.target.value);
                 }}
+                className="mt-4"
               />
             </ModalBody>
             <ModalFooter>
@@ -91,13 +100,19 @@ const Dashboard = () => {
       });
 
       console.log(response.data);
+      onClose();
+      setTitle("");
+      setDescription("");
+      if (announcementPageRef.current) {
+        announcementPageRef.current.fetchAnnouncements();
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 p-6 bg-gray-100 min-h-screen mt-16 ">
+    <div className="flex flex-col md:flex-row gap-6 p-6 bg-gray-100 min-h-screen mt-16">
       <div className="flex flex-col w-full md:w-1/4 bg-white p-4 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold mb-4">Dashboard</h2>
         <Button
@@ -154,8 +169,29 @@ const Dashboard = () => {
       <div className="flex-1 bg-white p-6 rounded-lg shadow-md">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold">{activePage}</h2>
+          {(activePage === "Illegal parking" || activePage === "Obstruction") && (
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  className="flex items-center gap-2 bg-gray-200 text-gray-700 transition-colors duration-300 hover:bg-gray-300"
+                >
+                  {filterStatus}
+                  <HiChevronDown className="transition-transform duration-300 transform" />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu>
+                <DropdownItem onClick={() => setFilterStatus("Pending")}>Pending</DropdownItem>
+                <DropdownItem onClick={() => setFilterStatus("Approved")}>Approved</DropdownItem>
+                <DropdownItem onClick={() => setFilterStatus("Disapproved")}>Disapproved</DropdownItem>
+                <DropdownItem onClick={() => setFilterStatus("Resolved")}>Resolved</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          )}
           {activePage === "Announcement" && (
-            <Button auto flat color="primary" onPress={onOpen}>
+            <Button
+              className="bg-blue-500 text-white transition-colors duration-300 hover:bg-blue-600"
+              onClick={onOpen}
+            >
               New Announcement
             </Button>
           )}

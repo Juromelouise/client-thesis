@@ -151,20 +151,15 @@ function ViewReport() {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-                {status === "Pending" && (
-                  <>
-                    <DropdownItem
-                      onPress={() => handleStatusChange("Approved")}
-                    >
-                      Approved
-                    </DropdownItem>
-                    <DropdownItem
-                      onPress={() => handleStatusChange("Disapproved")}
-                    >
-                      Disapproved
-                    </DropdownItem>
-                  </>
-                )}
+                <DropdownItem onPress={() => handleStatusChange("Pending")}>
+                  Pending
+                </DropdownItem>
+                <DropdownItem onPress={() => handleStatusChange("Approved")}>
+                  Approved
+                </DropdownItem>
+                <DropdownItem onPress={() => handleStatusChange("Disapproved")}>
+                  Disapproved
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>
