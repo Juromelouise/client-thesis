@@ -11,6 +11,8 @@ import ViewReport from "./Components/Admin/Reports/ViewReport";
 import ViewObstruction from "./Components/Admin/Reports/ViewObstructions";
 import AnnouncementDetails from "./Components/Home/AnnouncementDetails";
 import Register from "./Components/User/Register";
+import { ToastContainer, Slide } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -50,6 +52,20 @@ function App() {
             exact="true"
           />
         </Routes>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          limit={6}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable={false}
+          pauseOnHover
+          theme="colored"
+          transition={Slide}
+        />
       </Router>
     </>
   );

@@ -26,13 +26,14 @@ export default function Register() {
   const [password, setPassword] = React.useState("");
   const [alert, setAlert] = React.useState("");
   const [error, setError] = React.useState("");
-  
+  const [loading, setLoading] = React.useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
+      setLoading(true);
       const { data } = await apiClient.post("/user/register", {
         firstName,
         lastName,
@@ -54,6 +55,7 @@ export default function Register() {
         setAlert("error");
         setError(data.error || "Registration failed");
       }
+      setLoading(false);
       authenticate(data, () => {
         navigate("/");
         window.location.reload();
@@ -61,6 +63,7 @@ export default function Register() {
     } catch (error) {
       setAlert("error");
       setError(error.response.data.error || "Registration failed");
+      setLoading(false);
     }
   };
 
@@ -81,153 +84,154 @@ export default function Register() {
         name: displayName,
         avatar: photoURL,
       });
-
       authenticate(data, () => {
         navigate("/");
         window.location.reload();
       });
     } catch (e) {
       console.log(e);
+      setAlert("error");
+      setError(e.response.data.error || "Registration failed");
     }
   };
 
   return (
     <div className="flex h-screen bg-gradient-to-tr from-pink-400 to-yellow-500">
-      <div className="flex w-1/2 items-center justify-center">
-        <div className="text-white text-center ml-16 animate-fade-in">
-          <h1 className="text-4xl font-bold animate-bounce">Welcome</h1>
-          <p className="mt-4 text-lg animate-pulse">
-            Create an account to get started
-          </p>
-        </div>
-      </div>
-      <div className="flex w-1/2 items-center justify-center overflow-auto">
-        <div className="flex w-full max-w-sm flex-col gap-4 rounded-large px-8 pb-10 pt-6 bg-white shadow-lg mt-40 mb-2">
-          {alert && (
-            <Alert
-              color={alert === "error" ? "danger" : "success"}
-              title={error}
-            />
-          )}
-          <Form
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            validationBehavior="native"
-            onSubmit={handleSubmit}
-          >
-            <Input
-              isRequired
-              label="First Name"
-              name="firstName"
-              placeholder="Enter your first name"
-              type="text"
-              variant="bordered"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
+      <div className="flex w-full items-center justify-center">
+        <div className="flex w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
+          <div className="w-1/2 p-8">
+            {alert && (
+              <Alert
+                className="mb-4"
+                color={alert === "error" ? "danger" : "success"}
+                title={error}
+              />
+            )}
+            <Form
+              className="grid grid-cols-1 gap-4"
+              validationBehavior="native"
+              onSubmit={handleSubmit}
+            >
+              <Input
+                isRequired
+                label="First Name"
+                name="firstName"
+                placeholder="Enter your first name"
+                type="text"
+                variant="bordered"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
 
-            <Input
-              isRequired
-              label="Last Name"
-              name="lastName"
-              placeholder="Enter your last name"
-              type="text"
-              variant="bordered"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
+              <Input
+                isRequired
+                label="Last Name"
+                name="lastName"
+                placeholder="Enter your last name"
+                type="text"
+                variant="bordered"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
 
-            <Input
-              label="Phone Number"
-              name="phoneNumber"
-              placeholder="Enter your phone number"
-              type="text"
-              variant="bordered"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-            />
+              <Input
+                label="Phone Number"
+                name="phoneNumber"
+                placeholder="Enter your phone number"
+                type="text"
+                variant="bordered"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+              />
 
-            <Input
-              label="Address"
-              name="address"
-              placeholder="Enter your address"
-              type="text"
-              variant="bordered"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-            />
+              <Input
+                label="Address"
+                name="address"
+                placeholder="Enter your address"
+                type="text"
+                variant="bordered"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
 
-            <Input
-              isRequired
-              label="Email Address"
-              name="email"
-              placeholder="Enter your email"
-              type="email"
-              variant="bordered"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="col-span-1 md:col-span-2"
-            />
+              <Input
+                isRequired
+                label="Email Address"
+                name="email"
+                placeholder="Enter your email"
+                type="email"
+                variant="bordered"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
 
-            <Input
-              isRequired
-              endContent={
-                <button type="button" onClick={toggleVisibility}>
-                  {isVisible ? (
-                    <Icon
-                      className="pointer-events-none text-2xl text-default-400"
-                      icon="solar:eye-closed-linear"
-                    />
-                  ) : (
-                    <Icon
-                      className="pointer-events-none text-2xl text-default-400"
-                      icon="solar:eye-bold"
-                    />
-                  )}
-                </button>
-              }
-              label="Password"
-              name="password"
-              placeholder="Enter your password"
-              type={isVisible ? "text" : "password"}
-              variant="bordered"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="col-span-1 md:col-span-2"
-            />
-
-            <div className="flex w-full items-center justify-between px-1 py-2 col-span-1 md:col-span-2">
-              <Checkbox name="terms" size="sm">
+              <Input
+                isRequired
+                endContent={
+                  <button type="button" onClick={toggleVisibility}>
+                    {isVisible ? (
+                      <Icon
+                        className="pointer-events-none text-2xl text-default-400"
+                        icon="solar:eye-closed-linear"
+                      />
+                    ) : (
+                      <Icon
+                        className="pointer-events-none text-2xl text-default-400"
+                        icon="solar:eye-bold"
+                      />
+                    )}
+                  </button>
+                }
+                label="Password"
+                name="password"
+                placeholder="Enter your password"
+                type={isVisible ? "text" : "password"}
+                variant="bordered"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Form>
+          </div>
+          <Divider orientation="vertical" className="h-full" />
+          <div className="w-1/2 p-8 flex flex-col justify-center">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold text-gray-800">Welcome</h1>
+              <p className="mt-4 text-lg text-gray-600">
+                Create an account to get started
+              </p>
+            </div>
+            <div className="flex flex-col gap-4">
+              <Button
+                startContent={
+                  <Icon icon="flat-color-icons:google" width={24} />
+                }
+                variant="bordered"
+                onPress={doSignInWithGoogle}
+                className="w-full"
+              >
+                Continue with Google
+              </Button>
+              <Divider className="my-4" />
+              <Button
+                color="primary"
+                variant="solid"
+                className="w-full"
+                onClick={handleSubmit}
+                isLoading={loading}
+              >
+                Sign Up
+              </Button>
+              <Checkbox name="terms" size="sm" className="mt-4">
                 I agree to the terms and conditions
               </Checkbox>
+              <p className="text-center text-small mt-4">
+                Already have an account?&nbsp;
+                <Link href="login" size="sm">
+                  Log In
+                </Link>
+              </p>
             </div>
-            <Button
-              className="w-full col-span-1 md:col-span-2"
-              color="primary"
-              type="submit"
-            >
-              Sign Up
-            </Button>
-          </Form>
-          <div className="flex items-center gap-4 py-2">
-            <Divider className="flex-1" />
-            <p className="shrink-0 text-tiny text-default-500">OR</p>
-            <Divider className="flex-1" />
           </div>
-          <div className="flex flex-col gap-2">
-            <Button
-              startContent={<Icon icon="flat-color-icons:google" width={24} />}
-              variant="bordered"
-              onClick={doSignInWithGoogle}
-            >
-              Continue with Google
-            </Button>
-          </div>
-          <p className="text-center text-small">
-            Already have an account?&nbsp;
-            <Link href="login" size="sm">
-              Log In
-            </Link>
-          </p>
         </div>
       </div>
     </div>
