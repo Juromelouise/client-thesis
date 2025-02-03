@@ -8,6 +8,7 @@ import {
 } from "@heroui/react";
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import apiClient from "../../utils/apiClient";
+import { RxAvatar } from "react-icons/rx";
 
 const ReportCard = ({ createdAt, location, images, description }) => {
   return (
@@ -17,13 +18,14 @@ const ReportCard = ({ createdAt, location, images, description }) => {
         <div className="flex justify-between items-center mb-4">
           {/* Left Section: User Info */}
           <div className="flex items-center w-1/2">
-            <Avatar
+            {/* <Avatar
               src="https://i.pravatar.cc/150?img=3"
               size="lg"
               bordered
               color="primary"
               className="mr-4"
-            />
+            /> */}
+            <RxAvatar className="mr-4" size={40} />
             <div>
               <h3 className="text-lg font-bold text-gray-800">Anonymous</h3>
               <p className="text-sm text-gray-600">{new Date(createdAt).toLocaleDateString()}</p>

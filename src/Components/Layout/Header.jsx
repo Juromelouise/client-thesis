@@ -155,7 +155,7 @@ export default function Header() {
                     <DropdownItem onPress={() => navigate("/profile")}>
                       <div className="flex items-center gap-2">
                         <img
-                          src="https://i.pravatar.cc/150?img=3"
+                          src={user.avatar.url}
                           alt="Profile"
                           className="w-8 h-8 rounded-full"
                         />
