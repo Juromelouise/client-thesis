@@ -4,17 +4,16 @@ import {
   Button,
   Spinner,
   Divider,
-  Badge,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
+  DropdownMenu,
   ModalFooter,
   useDisclosure,
+  DropdownItem,
+  DropdownTrigger,
+  Dropdown,
   Textarea,
 } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -123,7 +122,7 @@ function ViewObstruction() {
           violations: updatedViolations,
         }
       );
-        
+
       setViolations(data.report.violations.join("\n"));
       toast.success("Violations updated successfully!");
     } catch (error) {
@@ -159,12 +158,16 @@ function ViewObstruction() {
                 onChange={(e) => handleViolationChange(e.target.value)}
                 className="mr-2 mb-2 text-sm py-1 px-2 w-full"
               />
-              <Button
-                className="ml-4 bg-blue-500 hover:bg-blue-600 text-white"
-                onPress={editViolations}
-              >
-                {isDisabled ? "Edit Violations" : "Save Violations"}
-              </Button>
+              {status && status === "Resolved" ? (
+                <></>
+              ) : (
+                <Button
+                  className="ml-4 bg-blue-500 hover:bg-blue-600 text-white"
+                  onPress={editViolations}
+                >
+                  {isDisabled ? "Edit Violations" : "Save Violations"}
+                </Button>
+              )}
             </div>
           </div>
           <div className="mb-6">
@@ -188,6 +191,21 @@ function ViewObstruction() {
               ))}
             </div>
           </div>
+          {status === "Resolved" && report.confirmationImages && (
+            <div className="mb-6">
+              <p className="text-lg font-bold mb-1">Confirmation Images:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {report.confirmationImages.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image.url}
+                    alt={`Confirmation Image ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Reporter:</p>
             <p className="text-gray-700">
