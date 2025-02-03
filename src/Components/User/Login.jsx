@@ -164,7 +164,11 @@ export default function Login() {
       if (data.message === "success") {
         setPassword("");
         setEmail("");
-      } 
+      }
+      authenticate(data, () => {
+        navigate("/");
+        window.location.reload();
+      });
     } catch (error) {
       setAlert("error");
       setError(error.response.data.error);
@@ -203,7 +207,9 @@ export default function Login() {
       <div className="flex w-1/2 items-center justify-center">
         <div className="text-white text-center ml-16 animate-fade-in">
           <h1 className="text-4xl font-bold animate-bounce">Welcome Back</h1>
-          <p className="mt-4 text-lg animate-pulse">Log in to your account to continue</p>
+          <p className="mt-4 text-lg animate-pulse">
+            Log in to your account to continue
+          </p>
         </div>
       </div>
       <div className="flex w-1/2 items-center justify-center">
