@@ -42,7 +42,7 @@ function AnnouncementDetails() {
   }
 
   return (
-    <div className="p-6 mt-14">
+    <div className="p-6">
       <Card className="shadow-lg max-w-4xl mx-auto p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-3xl font-semibold">{announcement.title}</h2>

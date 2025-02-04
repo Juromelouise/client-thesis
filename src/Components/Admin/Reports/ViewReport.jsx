@@ -132,7 +132,7 @@ function ViewReport() {
   };
 
   return (
-    <div className="p-6 mt-14">
+    <div className="p-6">
       <Card className="shadow-lg max-w-4xl mx-auto p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-3xl font-semibold">Report Details</h2>
@@ -151,7 +151,11 @@ function ViewReport() {
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Plate Number:</p>
-            <p className="text-gray-700">{report.plateNumber.plateNumber}</p>
+            <p className="text-gray-700">{report.plateNumber?.plateNumber}</p>
+          </div>
+          <div className="mb-6">
+            <p className="text-lg font-bold mb-1">Number of Report on Plate Number:</p>
+            <p className="text-gray-700">{report.plateNumber?.count}</p>
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Violations:</p>
@@ -180,7 +184,7 @@ function ViewReport() {
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Description:</p>
-            <p className="text-gray-700">{report.description}</p>
+            <p className="text-gray-700">{report.original}</p>
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Images:</p>

@@ -20,6 +20,7 @@ import ObstructionList from "./Reports/ObstructionList";
 import HeatMap from "./Maps/HeatMap";
 import AnnouncementPage from "../Home/Announcement";
 import apiClient from "../../utils/apiClient";
+import Charts from "./Charts/Charts";
 
 const Dashboard = () => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -32,7 +33,7 @@ const Dashboard = () => {
   const renderContent = () => {
     switch (activePage) {
       case "Charts":
-        return <div>Charts Content</div>;
+        return <Charts/>;
       case "Illegal parking":
         return <ReportList filterStatus={filterStatus} />;
       case "Obstruction":
