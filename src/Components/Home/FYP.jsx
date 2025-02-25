@@ -9,22 +9,17 @@ import {
 import { useBottomScrollListener } from 'react-bottom-scroll-listener';
 import apiClient from "../../utils/apiClient";
 import { RxAvatar } from "react-icons/rx";
+import { PhotoView } from "react-photo-view";
+import "react-photo-view/dist/react-photo-view.css";
 
 const ReportCard = ({ createdAt, location, images, description }) => {
   return (
-    <Card className="shadow-lg rounded-lg mb-8 bg-white border border-gray-200">
+    <Card className="shadow-lg rounded-lg mb-8 bg-white border border-gray-200 transition-transform duration-300 hover:scale-105">
       <CardBody>
         {/* Header Section */}
         <div className="flex justify-between items-center mb-4">
           {/* Left Section: User Info */}
           <div className="flex items-center w-1/2">
-            {/* <Avatar
-              src="https://i.pravatar.cc/150?img=3"
-              size="lg"
-              bordered
-              color="primary"
-              className="mr-4"
-            /> */}
             <RxAvatar className="mr-4" size={40} />
             <div>
               <h3 className="text-lg font-bold text-gray-800">Anonymous</h3>
@@ -41,11 +36,13 @@ const ReportCard = ({ createdAt, location, images, description }) => {
         <div className="flex justify-between mb-4 relative">
           {images.slice(0, 2).map((image, index) => (
             <div key={index} className="relative w-1/2 h-48 mx-1">
-              <img
-                src={image.url}
-                alt={`Report Image ${index + 1}`}
-                className={`w-full h-full object-cover rounded-lg ${index === 1 && images.length > 2 ? 'opacity-50' : ''}`}
-              />
+              <PhotoView src={image.url}>
+                <img
+                  src={image.url}
+                  alt={`Report Image ${index + 1}`}
+                  className={`w-full h-full object-cover rounded-lg cursor-pointer ${index === 1 && images.length > 2 ? 'opacity-50' : ''}`}
+                />
+              </PhotoView>
               {index === 1 && images.length > 2 && (
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
                   <p className="text-white text-lg font-bold">+{images.length - 2}</p>

@@ -13,6 +13,7 @@ import AnnouncementDetails from "./Components/Home/AnnouncementDetails";
 import Register from "./Components/User/Register";
 import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ViewPlateNumber from "./Components/Admin/Reports/ViewPlateNumber";
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
             element={<ViewObstruction />}
             exact="true"
           />
+          <Route path="/single/plate/:id" element={<ViewPlateNumber/>} />
         </Routes>
         <ToastContainer
           position="top-right"

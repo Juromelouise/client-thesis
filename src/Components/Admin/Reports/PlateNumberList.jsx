@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -14,7 +14,7 @@ import { useAsyncList } from "@react-stately/data";
 import apiClient from "../../../utils/apiClient";
 import { useNavigate } from "react-router-dom";
 
-const ReportList = ({ filterStatus }) => {
+const PlateNumberList = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [sortDescriptor, setSortDescriptor] = useState({
@@ -24,10 +24,9 @@ const ReportList = ({ filterStatus }) => {
 
   const list = useAsyncList({
     async load({ signal }) {
-      const res = await apiClient.get(`/report/admin/report`, { signal });
-      console.log(res.data.data);
+      const res = await apiClient.get(`/plate/admin/platenumbers`, { signal });
       setIsLoading(false);
-      return { items: res.data.data };
+      return { items: res.data.plateNumbers };
     },
     async sort({ items, sortDescriptor }) {
       return {
@@ -57,9 +56,7 @@ const ReportList = ({ filterStatus }) => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const filteredData = filterStatus
-    ? list.items.filter((item) => item.report.status === filterStatus)
-    : list.items;
+  const filteredData = list.items;
 
   return (
     <div className="p-2">
@@ -76,13 +73,6 @@ const ReportList = ({ filterStatus }) => {
         >
           <TableHeader>
             <TableColumn
-              key="location"
-              allowsSorting
-              className="text-center w-1/12"
-            >
-              Location
-            </TableColumn>
-            <TableColumn
               key="plateNumber"
               allowsSorting
               className="text-center w-3/12"
@@ -97,11 +87,11 @@ const ReportList = ({ filterStatus }) => {
               Violations
             </TableColumn>
             <TableColumn
-              key="createdAt"
+              key="Count"
               allowsSorting
               className="text-center w-2/12"
             >
-              Date
+              Count
             </TableColumn>
             <TableColumn className="text-center w-3/12">Actions</TableColumn>
           </TableHeader>
@@ -111,16 +101,13 @@ const ReportList = ({ filterStatus }) => {
             loadingContent={<Spinner label="Loading..." />}
           >
             {(item) => (
-              <TableRow key={item.report._id}>
-                <TableCell className="text-center">{item.report.location}</TableCell>
+              <TableRow key={item._id}>
+                <TableCell className="text-center">{item?.plateNumber}</TableCell>
                 <TableCell className="text-center">
-                  {item.report.plateNumber.plateNumber}
+                  {item?.violations.map(violation => violation.types.join(", ")).join(", ")}
                 </TableCell>
                 <TableCell className="text-center">
-                  {item.types.join(", ")}
-                </TableCell>
-                <TableCell className="text-center">
-                  {formatDate(item.report.createdAt)}
+                  {item?.count}
                 </TableCell>
                 <TableCell className="text-center">
                   <Button
@@ -128,7 +115,7 @@ const ReportList = ({ filterStatus }) => {
                     flat
                     color="primary"
                     className="mr-2"
-                    onPress={() => navigate(`/single/report/${item.report._id}`)}
+                    onPress={() => navigate(`/single/plate/${item._id}`)}
                   >
                     View
                   </Button>
@@ -145,4 +132,4 @@ const ReportList = ({ filterStatus }) => {
   );
 };
 
-export default ReportList;
+export default PlateNumberList;

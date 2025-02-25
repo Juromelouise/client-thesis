@@ -8,22 +8,42 @@ import {
   TableRow,
   Card,
   Button,
+  Spinner,
 } from "@heroui/react";
+import { useAsyncList } from "@react-stately/data";
 import apiClient from "../../../utils/apiClient";
 import { useNavigate } from "react-router-dom";
 
 const ObstructionList = ({ filterStatus }) => {
-  const [data, setData] = useState([]);
   const navigate = useNavigate();
-  const getData = async () => {
-    const { data } = await apiClient.get(`/report/admin/obstruction`);
-    setData(data.obstructions);
-    // console.log(data.obstructions);
-  };
+  const [isLoading, setIsLoading] = useState(true);
+
+  const list = useAsyncList({
+    async load({ signal }) {
+      const res = await apiClient.get(`/report/admin/obstruction`, { signal });
+      setIsLoading(false);
+      return { items: res.data.obstructions };
+    },
+    async sort({ items, sortDescriptor }) {
+      return {
+        items: items.sort((a, b) => {
+          let cmp = a[sortDescriptor.column] < b[sortDescriptor.column] ? -1 : 1;
+          if (sortDescriptor.direction === "descending") {
+            cmp *= -1;
+          }
+          return cmp;
+        }),
+      };
+    },
+  });
 
   useEffect(() => {
-    getData();
+    list.reload();
   }, []);
+
+  const handleSortChange = (descriptor) => {
+    list.sort(descriptor);
+  };
 
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
@@ -31,43 +51,56 @@ const ObstructionList = ({ filterStatus }) => {
   };
 
   const filteredData = filterStatus
-    ? data.filter((report) => report.status === filterStatus)
-    : data;
+    ? list.items.filter((report) => report.status === filterStatus)
+    : list.items;
 
   return (
     <div className="p-2">
       <Card className="shadow-lg">
         <h3 className="text-2xl font-semibold mb-5 text-center">
-          {" "}
           Obstruction Reports
         </h3>
         <Table
           selectionMode="single"
           aria-label="Example table with dynamic content"
           className="w-full"
+          sortDescriptor={list.sortDescriptor}
+          onSortChange={handleSortChange}
         >
           <TableHeader>
-            <TableColumn className="text-center w-1/12">ID</TableColumn>
-            <TableColumn className="text-center w-3/12">Location</TableColumn>
-            <TableColumn className="text-center w-3/12">Violations</TableColumn>
-            <TableColumn className="text-center w-2/12">Date</TableColumn>
+            <TableColumn key="_id" allowsSorting className="text-center w-1/12">
+              ID
+            </TableColumn>
+            <TableColumn key="location" allowsSorting className="text-center w-3/12">
+              Location
+            </TableColumn>
+            <TableColumn key="violations" allowsSorting className="text-center w-3/12">
+              Violations
+            </TableColumn>
+            <TableColumn key="createdAt" allowsSorting className="text-center w-2/12">
+              Date
+            </TableColumn>
             <TableColumn className="text-center w-3/12">Actions</TableColumn>
           </TableHeader>
-          <TableBody>
-            {filteredData.map((report) => (
-              <TableRow key={report.id}>
-                <TableCell className="text-center">{report?._id}</TableCell>
+          <TableBody
+            isLoading={isLoading}
+            items={filteredData}
+            loadingContent={<Spinner label="Loading..." />}
+          >
+            {(item) => (
+              <TableRow key={item._id}>
+                <TableCell className="text-center">{item?._id}</TableCell>
+                <TableCell className="text-center">{item?.location}</TableCell>
+                <TableCell className="text-center">{item?.violations?.join(", ")}</TableCell>
+                <TableCell className="text-center">{formatDate(item?.createdAt)}</TableCell>
                 <TableCell className="text-center">
-                  {report?.location}
-                </TableCell>
-                <TableCell className="text-center">
-                  {report?.violations?.join(", ")}
-                </TableCell>
-                <TableCell className="text-center">
-                  {formatDate(report?.createdAt)}
-                </TableCell>
-                <TableCell className="text-center">
-                  <Button auto flat color="primary" className="mr-2" onPress={() => navigate(`/single/obstruction/${report._id}`)}>
+                  <Button
+                    auto
+                    flat
+                    color="primary"
+                    className="mr-2"
+                    onPress={() => navigate(`/single/obstruction/${item._id}`)}
+                  >
                     View
                   </Button>
                   {/* <Button auto flat color="error">
@@ -75,7 +108,7 @@ const ObstructionList = ({ filterStatus }) => {
                   </Button> */}
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </Card>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Card,
   Button,
@@ -14,11 +14,40 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
-  Textarea,
 } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../utils/apiClient";
 import { toast } from "react-toastify";
+import { PhotoView } from "react-photo-view";
+import "react-photo-view/dist/react-photo-view.css";
+
+const violationsList = [
+  { description: "driveway", violation: "Blocking Driveway" },
+  { description: "no parking zone", violation: "No Parking Zone" },
+  { description: "fire hydrant", violation: "Fire Hydrant Parking" },
+  { description: "sidewalk", violation: "Sidewalk Parking" },
+  { description: "crosswalk", violation: "Crosswalk Obstruction" },
+  { description: "loading zone", violation: "Loading Zone Violation" },
+  { description: "bus stop", violation: "Blocking Bus Stop" },
+  {
+    description: "handicapped spot",
+    violation: "Unauthorized Parking in Handicapped Spot",
+  },
+  { description: "intersection", violation: "Parking Near Intersection" },
+  {
+    description: "railroad crossing",
+    violation: "Parking Near Railroad Crossing",
+  },
+  { description: "curb", violation: "Parking Too Close to Curb" },
+  { description: "towed area", violation: "Parking in Towed Area" },
+  {
+    description: "vehicle obstruction",
+    violation: "Obstructing Other Vehicles",
+  },
+  { description: "street corner", violation: "Parking at Street Corner" },
+  { description: "emergency lane", violation: "Parking in Emergency Lane" },
+  { description: "bicycle lane", violation: "Blocking Bicycle Lane" },
+];
 
 function ViewReport() {
   const { id } = useParams();
@@ -28,9 +57,15 @@ function ViewReport() {
   const [status, setStatus] = useState("");
   const [statusChangeCount, setStatusChangeCount] = useState(0);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isReasonModalOpen,
+    onOpen: onReasonModalOpen,
+    onClose: onReasonModalClose,
+  } = useDisclosure();
   const [newStatus, setNewStatus] = useState("");
+  const [reason, setReason] = useState("");
   const [violations, setViolations] = useState("");
-  const [isDisabled, setIsDisabled] = useState(true);
+  const [selectedKeys, setSelectedKeys] = useState(new Set());
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -40,6 +75,15 @@ function ViewReport() {
         setStatus(data.report.status);
         setStatusChangeCount(data.report.editableStatus);
         setViolations(data.report.plateNumber.violations.join("\n"));
+
+        // Set initial selected keys based on the report's violations
+        const initialSelectedKeys = new Set(
+          data.report.plateNumber.violations.map(
+            (violation) =>
+              violationsList.find((v) => v.violation === violation)?.description
+          )
+        );
+        setSelectedKeys(initialSelectedKeys);
       } catch (error) {
         console.error("Error fetching report:", error);
       } finally {
@@ -48,6 +92,77 @@ function ViewReport() {
     };
     fetchReport();
   }, [id]);
+
+  const selectedValue = useMemo(
+    () =>
+      Array.from(selectedKeys)
+        .map(
+          (key) => violationsList.find((v) => v.description === key)?.violation
+        )
+        .join(", "),
+    [selectedKeys]
+  );
+
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const handleStatusChange = async (newStatus, reason) => {
+    try {
+      const { data } = await apiClient.put(
+        `/report/admin/report/status/${id}`,
+        {
+          status: newStatus,
+          reason: reason,
+        }
+      );
+      setReport(data.report);
+      setStatus(data.report.status);
+      setReason("");
+      setStatusChangeCount(data.report.editableStatus);
+      toast.success("Status updated successfully!");
+    } catch (error) {
+      console.error("Error updating report status:", error);
+      if (error.response && error.response.data.message) {
+        toast.warning(error.response.data.message);
+      }
+    }
+  };
+
+  const handleStatusChangeClick = (newStatus) => {
+    setNewStatus(newStatus);
+    onReasonModalOpen();
+  };
+
+  const confirmStatusChange = () => {
+    handleStatusChange(newStatus, reason);
+    onReasonModalClose();
+  };
+
+  const editViolations = () => {
+    saveViolations();
+  };
+
+  const saveViolations = async () => {
+    try {
+      const updatedViolations = Array.from(selectedKeys).map(
+        (key) => violationsList.find((v) => v.description === key)?.violation
+      );
+      const { data } = await apiClient.put(
+        `/plate/admin/report/violations/${report.plateNumber._id}`,
+        {
+          violations: updatedViolations,
+        }
+      );
+
+      setViolations(data.report.violations.join("\n"));
+      toast.success("Violations updated successfully!");
+    } catch (error) {
+      console.error("Error updating violations:", error);
+      toast.error("Failed to update violations.");
+    }
+  };
 
   if (loading) {
     return (
@@ -66,70 +181,6 @@ function ViewReport() {
       </div>
     );
   }
-
-  const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  const handleStatusChange = async (newStatus) => {
-    try {
-      const { data } = await apiClient.put(
-        `/report/admin/report/status/${id}`,
-        {
-          status: newStatus,
-        }
-      );
-      setReport(data.report);
-      setStatus(data.report.status);
-      setStatusChangeCount(data.report.editableStatus);
-      toast.success("Status updated successfully!");
-    } catch (error) {
-      console.error("Error updating report status:", error);
-      if (error.response && error.response.data.message) {
-        toast.warning(error.response.data.message);
-      }
-    }
-  };
-
-  const handleStatusChangeClick = (newStatus) => {
-    setNewStatus(newStatus);
-    onOpen();
-  };
-
-  const confirmStatusChange = () => {
-    handleStatusChange(newStatus);
-    onClose();
-  };
-
-  const handleViolationChange = (value) => {
-    setViolations(value);
-  };
-
-  const editViolations = () => {
-    if (!isDisabled) {
-      saveViolations();
-    }
-    setIsDisabled(!isDisabled);
-  };
-
-  const saveViolations = async () => {
-    try {
-      const updatedViolations = violations.split("\n");
-      const { data } = await apiClient.put(
-        `/plate/admin/report/violations/${report.plateNumber._id}`,
-        {
-          violations: updatedViolations,
-        }
-      );
-
-      setViolations(data.report.violations.join("\n"));
-      toast.success("Violations updated successfully!");
-    } catch (error) {
-      console.error("Error updating violations:", error);
-      toast.error("Failed to update violations.");
-    }
-  };
 
   return (
     <div className="p-6">
@@ -151,21 +202,54 @@ function ViewReport() {
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Plate Number:</p>
-            <p className="text-gray-700">{report.plateNumber?.plateNumber}</p>
+            <p className="text-gray-700">
+              <Button
+                key={report.plateNumber?._id}
+                onPress={() => {
+                  navigate(`/single/plate/${report.plateNumber?._id}`);
+                }}
+              >
+                {report.plateNumber?.plateNumber}
+              </Button>
+            </p>
+            {/* <p className="text-gray-700">{report.plateNumber?.plateNumber}</p> */}
           </div>
           <div className="mb-6">
-            <p className="text-lg font-bold mb-1">Number of Report on Plate Number:</p>
+            <p className="text-lg font-bold mb-1">
+              Number of Report on Plate Number:
+            </p>
             <p className="text-gray-700">{report.plateNumber?.count}</p>
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Violations:</p>
             <div className="flex flex-wrap items-center">
-              <Textarea
-                isDisabled={isDisabled}
-                value={violations}
-                onChange={(e) => handleViolationChange(e.target.value)}
-                className="mr-2 mb-2 text-sm py-1 px-2 w-full"
-              />
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button
+                    className="capitalize"
+                    variant="bordered"
+                    style={{ width: "300px", height: "50px" }}
+                  >
+                    {selectedValue || "Select Violations"}
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  disallowEmptySelection
+                  aria-label="Multiple selection example"
+                  closeOnSelect={false}
+                  selectedKeys={selectedKeys}
+                  selectionMode="multiple"
+                  variant="flat"
+                  onSelectionChange={setSelectedKeys}
+                  style={{ maxHeight: "200px", overflowY: "auto" }}
+                >
+                  {violationsList.map((violation) => (
+                    <DropdownItem key={violation.description}>
+                      {violation.violation}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
               {status && status === "Resolved" ? (
                 <></>
               ) : (
@@ -173,7 +257,7 @@ function ViewReport() {
                   className="ml-4 bg-blue-500 hover:bg-blue-600 text-white"
                   onPress={editViolations}
                 >
-                  {isDisabled ? "Edit Violations" : "Save Violations"}
+                  {"Save Violations"}
                 </Button>
               )}
             </div>
@@ -190,12 +274,13 @@ function ViewReport() {
             <p className="text-lg font-bold mb-1">Images:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {report.images.map((image, index) => (
-                <img
-                  key={index}
-                  src={image.url}
-                  alt={`Report Image ${index + 1}`}
-                  className="w-full h-48 object-cover rounded-lg"
-                />
+                <PhotoView key={index} src={image.url}>
+                  <img
+                    src={image.url}
+                    alt={`Report Image ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105"
+                  />
+                </PhotoView>
               ))}
             </div>
           </div>
@@ -204,12 +289,13 @@ function ViewReport() {
               <p className="text-lg font-bold mb-1">Confirmation Images:</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {report.confirmationImages.map((image, index) => (
-                  <img
-                    key={index}
-                    src={image.url}
-                    alt={`Confirmation Image ${index + 1}`}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
+                  <PhotoView key={index} src={image.url}>
+                    <img
+                      src={image.url}
+                      alt={`Confirmation Image ${index + 1}`}
+                      className="w-full h-48 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105"
+                    />
+                  </PhotoView>
                 ))}
               </div>
             </div>
@@ -220,10 +306,6 @@ function ViewReport() {
               {report.reporter?.firstName} {report.reporter?.lastName}
             </p>
             <p className="text-gray-700">{report.reporter?.email}</p>
-          </div>
-          <div className="mb-6">
-            <p className="text-lg font-bold mb-1">Status Change Count:</p>
-            <p className="text-gray-700">{statusChangeCount}</p>
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Status:</p>
@@ -308,6 +390,33 @@ function ViewReport() {
             </Button>
             <Button onPress={onClose} variant="light">
               No
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={isReasonModalOpen} onClose={onReasonModalClose}>
+        <ModalContent>
+          <ModalHeader>Reason for Status Change</ModalHeader>
+          <ModalBody>
+            <textarea
+              className="w-full p-2 border rounded"
+              rows="5"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Enter the reason for changing the status"
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              className="mr-2"
+              onPress={confirmStatusChange}
+              color="primary"
+            >
+              Submit
+            </Button>
+            <Button onPress={onReasonModalClose} variant="light">
+              Cancel
             </Button>
           </ModalFooter>
         </ModalContent>
