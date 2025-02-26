@@ -4,49 +4,41 @@ import {
   Button,
   Spinner,
   Divider,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
   useDisclosure,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
+import Select from "react-select";
 import apiClient from "../../../utils/apiClient";
 import { toast } from "react-toastify";
 import { PhotoView } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
 
 const violationsList = [
-  { description: "driveway", violation: "Blocking Driveway" },
-  { description: "no parking zone", violation: "No Parking Zone" },
-  { description: "fire hydrant", violation: "Fire Hydrant Parking" },
-  { description: "sidewalk", violation: "Sidewalk Parking" },
-  { description: "crosswalk", violation: "Crosswalk Obstruction" },
-  { description: "loading zone", violation: "Loading Zone Violation" },
-  { description: "bus stop", violation: "Blocking Bus Stop" },
-  {
-    description: "handicapped spot",
-    violation: "Unauthorized Parking in Handicapped Spot",
-  },
-  { description: "intersection", violation: "Parking Near Intersection" },
-  {
-    description: "railroad crossing",
-    violation: "Parking Near Railroad Crossing",
-  },
-  { description: "curb", violation: "Parking Too Close to Curb" },
-  { description: "towed area", violation: "Parking in Towed Area" },
-  {
-    description: "vehicle obstruction",
-    violation: "Obstructing Other Vehicles",
-  },
-  { description: "street corner", violation: "Parking at Street Corner" },
-  { description: "emergency lane", violation: "Parking in Emergency Lane" },
-  { description: "bicycle lane", violation: "Blocking Bicycle Lane" },
+  { value: "driveway", label: "Blocking Driveway" },
+  { value: "no parking zone", label: "No Parking Zone" },
+  { value: "fire hydrant", label: "Fire Hydrant Parking" },
+  { value: "sidewalk", label: "Sidewalk Parking" },
+  { value: "crosswalk", label: "Crosswalk Obstruction" },
+  { value: "loading zone", label: "Loading Zone Violation" },
+  { value: "bus stop", label: "Blocking Bus Stop" },
+  { value: "handicapped spot", label: "Unauthorized Parking in Handicapped Spot" },
+  { value: "intersection", label: "Parking Near Intersection" },
+  { value: "railroad crossing", label: "Parking Near Railroad Crossing" },
+  { value: "curb", label: "Parking Too Close to Curb" },
+  { value: "towed area", label: "Parking in Towed Area" },
+  { value: "vehicle obstruction", label: "Obstructing Other Vehicles" },
+  { value: "street corner", label: "Parking at Street Corner" },
+  { value: "emergency lane", label: "Parking in Emergency Lane" },
+  { value: "bicycle lane", label: "Blocking Bicycle Lane" },
 ];
 
 function ViewReport() {
@@ -64,8 +56,8 @@ function ViewReport() {
   } = useDisclosure();
   const [newStatus, setNewStatus] = useState("");
   const [reason, setReason] = useState("");
-  const [violations, setViolations] = useState("");
-  const [selectedKeys, setSelectedKeys] = useState(new Set());
+  const [violations, setViolations] = useState([]);
+  const [selectedViolations, setSelectedViolations] = useState([]);
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -74,16 +66,21 @@ function ViewReport() {
         setReport(data.report);
         setStatus(data.report.status);
         setStatusChangeCount(data.report.editableStatus);
-        setViolations(data.report.plateNumber.violations.join("\n"));
 
-        // Set initial selected keys based on the report's violations
-        const initialSelectedKeys = new Set(
-          data.report.plateNumber.violations.map(
-            (violation) =>
-              violationsList.find((v) => v.violation === violation)?.description
-          )
+        // Fetch the violation of that specific report
+        const violation = data.report.plateNumber.violations.find(
+          (v) => v.report._id.toString() === id
         );
-        setSelectedKeys(initialSelectedKeys);
+        if (violation) {
+          setViolations(violation.types);
+          setSelectedViolations(
+            violation.types.map((type) =>
+              // console.log(type)
+              violationsList.find((v) => v.label === type)
+            )
+          );
+        }
+        
       } catch (error) {
         console.error("Error fetching report:", error);
       } finally {
@@ -92,22 +89,6 @@ function ViewReport() {
     };
     fetchReport();
   }, [id]);
-
-  const selectedValue = useMemo(
-    () =>
-      Array.from(selectedKeys)
-        .map(
-          (key) => violationsList.find((v) => v.description === key)?.violation
-        )
-        .join(", "),
-    [selectedKeys]
-  );
-
-  const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
   const handleStatusChange = async (newStatus, reason) => {
     try {
       const { data } = await apiClient.put(
@@ -146,17 +127,16 @@ function ViewReport() {
 
   const saveViolations = async () => {
     try {
-      const updatedViolations = Array.from(selectedKeys).map(
-        (key) => violationsList.find((v) => v.description === key)?.violation
-      );
+      const updatedViolations = selectedViolations.map((v) => v.label);
+      console.log(updatedViolations);
       const { data } = await apiClient.put(
-        `/plate/admin/report/violations/${report.plateNumber._id}`,
+        `/plate/admin/report/violations/${report._id}`,
         {
           violations: updatedViolations,
         }
       );
-
-      setViolations(data.report.violations.join("\n"));
+      console.log(data)
+      // setViolations(data.report.violations.join("\n"));
       toast.success("Violations updated successfully!");
     } catch (error) {
       console.error("Error updating violations:", error);
@@ -181,6 +161,11 @@ function ViewReport() {
       </div>
     );
   }
+
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
 
   return (
     <div className="p-6">
@@ -212,7 +197,6 @@ function ViewReport() {
                 {report.plateNumber?.plateNumber}
               </Button>
             </p>
-            {/* <p className="text-gray-700">{report.plateNumber?.plateNumber}</p> */}
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">
@@ -223,33 +207,14 @@ function ViewReport() {
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Violations:</p>
             <div className="flex flex-wrap items-center">
-              <Dropdown>
-                <DropdownTrigger>
-                  <Button
-                    className="capitalize"
-                    variant="bordered"
-                    style={{ width: "300px", height: "50px" }}
-                  >
-                    {selectedValue || "Select Violations"}
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  disallowEmptySelection
-                  aria-label="Multiple selection example"
-                  closeOnSelect={false}
-                  selectedKeys={selectedKeys}
-                  selectionMode="multiple"
-                  variant="flat"
-                  onSelectionChange={setSelectedKeys}
-                  style={{ maxHeight: "200px", overflowY: "auto" }}
-                >
-                  {violationsList.map((violation) => (
-                    <DropdownItem key={violation.description}>
-                      {violation.violation}
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
+              <Select
+                isMulti
+                options={violationsList}
+                value={selectedViolations}
+                onChange={setSelectedViolations}
+                className="w-full max-w-md"
+                classNamePrefix="react-select"
+              />
               {status && status === "Resolved" ? (
                 <></>
               ) : (
@@ -257,7 +222,7 @@ function ViewReport() {
                   className="ml-4 bg-blue-500 hover:bg-blue-600 text-white"
                   onPress={editViolations}
                 >
-                  {"Save Violations"}
+                  Save Violations
                 </Button>
               )}
             </div>
