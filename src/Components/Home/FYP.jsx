@@ -1,31 +1,46 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Card,
-  CardBody,
-  Avatar,
-  Button,
-  Spacer,
-} from "@heroui/react";
-import { useBottomScrollListener } from 'react-bottom-scroll-listener';
+import { Card, CardBody, Avatar, Button, Spacer } from "@heroui/react";
+import { useBottomScrollListener } from "react-bottom-scroll-listener";
 import apiClient from "../../utils/apiClient";
 import { RxAvatar } from "react-icons/rx";
 import { PhotoView } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
+import { getUser } from "../../utils/helpers";
 
-const ReportCard = ({ createdAt, location, images, description }) => {
+const ReportCard = ({ createdAt, location, images, description, reporter, avatar }) => {
   return (
     <Card className="shadow-lg rounded-lg mb-8 bg-white border border-gray-200 transition-transform duration-300 hover:scale-105">
       <CardBody>
         {/* Header Section */}
         <div className="flex justify-between items-center mb-4">
           {/* Left Section: User Info */}
-          <div className="flex items-center w-1/2">
-            <RxAvatar className="mr-4" size={40} />
-            <div>
-              <h3 className="text-lg font-bold text-gray-800">Anonymous</h3>
-              <p className="text-sm text-gray-600">{new Date(createdAt).toLocaleDateString()}</p>
+          {getUser() && getUser().role === "admin" ? (
+            <div className="flex items-center w-1/2">
+              <Avatar
+                className="mr-4"
+                src={avatar}
+              ></Avatar>
+              <div>
+              <h3 className="text-lg font-bold text-gray-800">{reporter}</h3>
+              <p className="text-sm text-gray-600">
+                {new Date(createdAt).toLocaleDateString()}
+              </p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="flex items-center w-1/2">
+                <RxAvatar className="mr-4" size={40} />
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800">Anonymous</h3>
+                  <p className="text-sm text-gray-600">
+                    {new Date(createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+
           {/* Right Section: Location */}
           <div className="text-right w-1/2">
             <p className="text-sm text-gray-600">{location}</p>
@@ -40,12 +55,16 @@ const ReportCard = ({ createdAt, location, images, description }) => {
                 <img
                   src={image.url}
                   alt={`Report Image ${index + 1}`}
-                  className={`w-full h-full object-cover rounded-lg cursor-pointer ${index === 1 && images.length > 2 ? 'opacity-50' : ''}`}
+                  className={`w-full h-full object-cover rounded-lg cursor-pointer ${
+                    index === 1 && images.length > 2 ? "opacity-50" : ""
+                  }`}
                 />
               </PhotoView>
               {index === 1 && images.length > 2 && (
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                  <p className="text-white text-lg font-bold">+{images.length - 2}</p>
+                  <p className="text-white text-lg font-bold">
+                    +{images.length - 2}
+                  </p>
                 </div>
               )}
             </div>
@@ -69,8 +88,10 @@ const FYP = () => {
   const getData = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get(`/report/fetch/all/reports?page=${page}&limit=10`);
-      setData(prevData => [...prevData, ...response.data.data]);
+      const response = await apiClient.get(
+        `/report/fetch/all/reports?page=${page}&limit=10`
+      );
+      setData((prevData) => [...prevData, ...response.data.data]);
       setLoading(false);
     } catch (error) {
       alert("Failed to fetch reports. Please try again.");
@@ -81,12 +102,14 @@ const FYP = () => {
   useEffect(() => {
     getData();
   }, [page]);
+  console.log(data)
 
   const handleScroll = useCallback(() => {
-    setPage(prevPage => prevPage + 1);
+    setPage((prevPage) => prevPage + 1);
   }, []);
 
   useBottomScrollListener(handleScroll);
+
 
   return (
     <div className="container mx-auto p-4">
@@ -99,7 +122,8 @@ const FYP = () => {
             location={item.location}
             images={item.images}
             description={item.description}
-          />
+            reporter={`${item.reporter.firstName} ${item.reporter.lastName}`}       
+            avatar={item.reporter.avatar.url}   />
         ))}
       </div>
       {loading && <p className="text-center mt-4">Loading...</p>}

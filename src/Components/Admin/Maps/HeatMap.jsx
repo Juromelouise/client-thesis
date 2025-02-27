@@ -1,4 +1,4 @@
-import { GoogleMap, useLoadScript, HeatmapLayer, Marker, Circle } from "@react-google-maps/api";
+import { GoogleMap, useLoadScript, HeatmapLayer, Marker, Circle, Polygon } from "@react-google-maps/api";
 import { useState, useEffect } from "react";
 
 const heatmapData = [
@@ -38,6 +38,22 @@ const circleOptions = {
   radius: 100,
 };
 
+// Define the coordinates for the boundary of Barangay Western Bicutan
+const westernBicutanCoords = [
+  { lat: 14.5176, lng: 121.0453 },
+  { lat: 14.518, lng: 121.0455 },
+  { lat: 14.5178, lng: 121.0457 },
+  // Add more coordinates to complete the boundary
+];
+
+const polygonOptions = {
+  fillColor: "#FF0000",
+  fillOpacity: 0.35,
+  strokeColor: "#FF0000",
+  strokeOpacity: 0.8,
+  strokeWeight: 2,
+};
+
 const HeatMap = () => {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -67,6 +83,7 @@ const HeatMap = () => {
         <>
           <Marker position={markerPosition} />
           <Circle options={circleOptions} />
+          <Polygon paths={westernBicutanCoords} options={polygonOptions} />
         </>
       )}
     </GoogleMap>
