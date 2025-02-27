@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { GoogleMap, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap, useLoadScript, Polyline } from "@react-google-maps/api";
 
 const mapContainerStyle = {
   width: "100%",
@@ -7,8 +7,8 @@ const mapContainerStyle = {
 };
 
 const center = {
-  lat: -33.86,
-  lng: 151.209,
+  lat: 14.5176,
+  lng: 121.0453,
 };
 
 const styles = {
@@ -85,6 +85,35 @@ const styles = {
   ],
 };
 
+// Define the coordinates and colors for the streets you want to highlight
+const highlightedStreets = [
+  {
+    name: "1st Street",
+    path: [
+      { lat:14.5143, lng: 121.0428 },
+      { lat: 14.5143, lng: 121.0428 },
+    ],
+    color: "#FF0000",
+  },
+  {
+    name: "2nd Street",
+    path: [
+      { lat: 14.5096, lng: 121.0381 },
+      { lat: 14.5097, lng: 121.0382 },
+    ],
+    color: "#00FF00",
+  },
+  {
+    name: "3rd Street",
+    path: [
+      { lat: 14.5143, lng: 121.0428 },
+      { lat: 14.5144, lng: 121.0429 },
+    ],
+    color: "#0000FF",
+  },
+  // Add more streets as needed
+];
+
 const StreetLegends = () => {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -115,7 +144,19 @@ const StreetLegends = () => {
         center={center}
         zoom={13}
         options={{ styles: styles[mapStyle], mapTypeControl: false }}
-      />
+      >
+        {highlightedStreets.map((street, index) => (
+          <Polyline
+            key={index}
+            path={street.path}
+            options={{
+              strokeColor: street.color,
+              strokeOpacity: 1.0,
+              strokeWeight: 3,
+            }}
+          />
+        ))}
+      </GoogleMap>
     </div>
   );
 };
