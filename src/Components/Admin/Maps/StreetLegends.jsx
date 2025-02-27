@@ -106,8 +106,8 @@ const highlightedStreets = [
   {
     name: "3rd Street",
     path: [
-      { lat: 14.5143, lng: 121.0428 },
-      { lat: 14.5144, lng: 121.0429 },
+      { lat: 14.514323, lng: 121.041713},
+      { lat: 14.513210, lng: 121.039504 },
     ],
     color: "#0000FF",
   },
