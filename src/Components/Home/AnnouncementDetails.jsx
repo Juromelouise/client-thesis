@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, Button, Spinner, Divider } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../utils/apiClient";
+import { PhotoView } from "react-photo-view";
 
 function AnnouncementDetails() {
   const { id } = useParams();
@@ -57,6 +58,24 @@ function AnnouncementDetails() {
         <div className="mt-4">
           <p className="text-lg text-gray-700">{announcement.description}</p>
         </div>
+        {announcement.picture && announcement.picture.length > 0 && (
+          <div className="mt-4">
+            <h3 className="text-xl font-semibold mb-2">Images</h3>
+      
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {announcement.picture.map((image, index) => (
+                  <PhotoView key={index} src={image.url}>
+                    <img
+                      src={image.url}
+                      alt={`Announcement Image ${index + 1}`}
+                      className="w-full h-48 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105"
+                    />
+                  </PhotoView>
+                ))}
+              </div>
+          
+          </div>
+        )}
       </Card>
     </div>
   );

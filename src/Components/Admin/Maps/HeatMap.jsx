@@ -40,10 +40,20 @@ const circleOptions = {
 
 // Define the coordinates for the boundary of Barangay Western Bicutan
 const westernBicutanCoords = [
-  { lat: 14.5176, lng: 121.0453 },
-  { lat: 14.518, lng: 121.0455 },
-  { lat: 14.5178, lng: 121.0457 },
-  // Add more coordinates to complete the boundary
+  { lat: 14.5226, lng: 121.0432 },
+  { lat: 14.5205, lng: 121.0376 },
+  { lat: 14.5183, lng: 121.0381 },
+  { lat: 14.5161, lng: 121.0394 },
+  { lat: 14.5152, lng: 121.0415 },
+  { lat: 14.5143, lng: 121.0438 },
+  { lat: 14.5135, lng: 121.0451 },
+  { lat: 14.5142, lng: 121.0483 },
+  { lat: 14.5156, lng: 121.0497 },
+  { lat: 14.5173, lng: 121.0508 },
+  { lat: 14.5192, lng: 121.0503 },
+  { lat: 14.5210, lng: 121.0495 },
+  { lat: 14.5224, lng: 121.0478 },
+  { lat: 14.5226, lng: 121.0432 },
 ];
 
 const polygonOptions = {

@@ -22,12 +22,14 @@ import AnnouncementPage from "../Home/Announcement";
 import apiClient from "../../utils/apiClient";
 import Charts from "./Charts/Charts";
 import PlateNumberList from "./Reports/PlateNumberList";
+import StreetLegends from "./Maps/StreetLegends";
 
 const Dashboard = () => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [activePage, setActivePage] = useState("Charts");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [images, setImages] = useState([]);
   const [filterStatus, setFilterStatus] = useState("Pending");
   const announcementPageRef = useRef(null);
 
@@ -45,6 +47,8 @@ const Dashboard = () => {
         return <HeatMap />;
       case "Announcement":
         return <AnnouncementPage ref={announcementPageRef} />;
+      case "StreetLegends":
+        return <StreetLegends />;
       default:
         return <div>Select a page</div>;
     }
@@ -83,6 +87,17 @@ const Dashboard = () => {
                 }}
                 className="mt-4"
               />
+              <Input
+                type="file"
+                label="Images"
+                variant="underlined"
+                multiple
+                accept="image/*"
+                onChange={(e) => {
+                  setImages(Array.from(e.target.files));
+                }}
+                className="mt-4"
+              />
             </ModalBody>
             <ModalFooter>
               <Button auto flat color="error" onPress={onClose}>
@@ -98,15 +113,28 @@ const Dashboard = () => {
 
   const createAnnouncement = async () => {
     try {
-      const response = await apiClient.post(`/announce/create`, {
-        title,
-        description,
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      images.forEach((image) => {
+        formData.append(`images`, image);
+      });
+
+      for (const pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+
+      const response = await apiClient.post(`/announce/create`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       console.log(response.data);
       onClose();
       setTitle("");
       setDescription("");
+      setImages([]);
       if (announcementPageRef.current) {
         announcementPageRef.current.fetchAnnouncements();
       }
@@ -168,6 +196,16 @@ const Dashboard = () => {
           onPress={() => setActivePage("Heatmap")}
         >
           Heatmap
+        </Button>
+        <Button
+          className={`mb-2 ${
+            activePage === "StreetLegends"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700"
+          }`}
+          onPress={() => setActivePage("StreetLegends")}
+        >
+          Streets
         </Button>
         <Button
           className={`mb-2 ${
