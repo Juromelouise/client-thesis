@@ -26,6 +26,7 @@ const PlateNumberList = () => {
     async load({ signal }) {
       const res = await apiClient.get(`/plate/admin/platenumbers`, { signal });
       setIsLoading(false);
+      console.log(res.data.plateNumbers);
       return { items: res.data.plateNumbers };
     },
     async sort({ items, sortDescriptor }) {

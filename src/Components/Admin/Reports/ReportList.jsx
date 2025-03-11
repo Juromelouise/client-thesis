@@ -9,57 +9,64 @@ import {
   Card,
   Button,
   Spinner,
+  Pagination,
+  PaginationItem,
+  PaginationCursor,
 } from "@heroui/react";
-import { useAsyncList } from "@react-stately/data";
 import apiClient from "../../../utils/apiClient";
 import { useNavigate } from "react-router-dom";
 
 const ReportList = ({ filterStatus }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [sortDescriptor, setSortDescriptor] = useState({
-    column: "createdAt",
-    direction: "ascending",
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [paginatedData, setPaginatedData] = useState([]);
+  const [data, setData] = useState([]);
+  const itemsPerPage = 10;
 
-  const list = useAsyncList({
-    async load({ signal }) {
-      const res = await apiClient.get(`/report/admin/report`, { signal });
-      console.log(res.data.data);
+  const fetchReports = async (page) => {
+    setIsLoading(true);
+    try {
+      const res = await apiClient.get(`/report/admin/report`, {
+        params: { page, limit: itemsPerPage },
+      });
       setIsLoading(false);
-      return { items: res.data.data };
-    },
-    async sort({ items, sortDescriptor }) {
-      return {
-        items: items.sort((a, b) => {
-          let cmp =
-            a[sortDescriptor.column] < b[sortDescriptor.column] ? -1 : 1;
-          if (sortDescriptor.direction === "descending") {
-            cmp *= -1;
-          }
-          return cmp;
-        }),
-      };
-    },
-  });
+      setData(res.data.data);
+      setTotalPages(res.data.totalPages);
+    } catch (error) {
+      console.error("Error loading data:", error);
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    list.reload();
-  }, []);
+    fetchReports(currentPage);
+  }, [currentPage]);
 
   const handleSortChange = (descriptor) => {
     setSortDescriptor(descriptor);
-    list.sort(descriptor);
+    // Implement sorting logic if needed
   };
 
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+  useEffect(() => {
+    filteringData();
+  }, [data]);
 
-  const filteredData = filterStatus
-    ? list.items.filter((item) => item.report.status === filterStatus)
-    : list.items;
+  const filteringData = () => {
+    try {
+      const a = filterStatus
+        ? data.filter((item) => item.status === filterStatus)
+        : data;
+      setPaginatedData(a);
+    } catch (error) {
+      console.error("Error filtering data:", error);
+    }
+  };
 
   return (
     <div className="p-2">
@@ -71,56 +78,40 @@ const ReportList = ({ filterStatus }) => {
           selectionMode="single"
           aria-label="Example table with dynamic content"
           className="w-full"
-          sortDescriptor={sortDescriptor}
           onSortChange={handleSortChange}
         >
           <TableHeader>
-            <TableColumn
-              key="location"
-              allowsSorting
-              className="text-center w-1/12"
-            >
+            <TableColumn key="location" className="text-center w-1/12">
               Location
             </TableColumn>
-            <TableColumn
-              key="plateNumber"
-              allowsSorting
-              className="text-center w-3/12"
-            >
+            <TableColumn key="plateNumber" className="text-center w-3/12">
               Plate Number
             </TableColumn>
-            <TableColumn
-              key="violations"
-              allowsSorting
-              className="text-center w-3/12"
-            >
+            <TableColumn key="types" className="text-center w-3/12">
               Violations
             </TableColumn>
-            <TableColumn
-              key="createdAt"
-              allowsSorting
-              className="text-center w-2/12"
-            >
+            <TableColumn key="createdAt" className="text-center w-2/12">
               Date
             </TableColumn>
             <TableColumn className="text-center w-3/12">Actions</TableColumn>
           </TableHeader>
           <TableBody
             isLoading={isLoading}
-            items={filteredData}
+            items={paginatedData}
             loadingContent={<Spinner label="Loading..." />}
+            getKey={(item) => item._id}
           >
             {(item) => (
-              <TableRow key={item.report._id}>
-                <TableCell className="text-center">{item.report.location}</TableCell>
+              <TableRow key={item._id}>
+                <TableCell className="text-center">{item.location}</TableCell>
                 <TableCell className="text-center">
-                  {item.report.plateNumber.plateNumber}
+                  {item.plateNumber}
                 </TableCell>
                 <TableCell className="text-center">
                   {item.types.join(", ")}
                 </TableCell>
                 <TableCell className="text-center">
-                  {formatDate(item.report.createdAt)}
+                  {formatDate(item.createdAt)}
                 </TableCell>
                 <TableCell className="text-center">
                   <Button
@@ -128,7 +119,7 @@ const ReportList = ({ filterStatus }) => {
                     flat
                     color="primary"
                     className="mr-2"
-                    onPress={() => navigate(`/single/report/${item.report._id}`)}
+                    onPress={() => navigate(`/single/report/${item._id}`)}
                   >
                     View
                   </Button>
@@ -140,6 +131,22 @@ const ReportList = ({ filterStatus }) => {
             )}
           </TableBody>
         </Table>
+        <div className="flex justify-center mt-4">
+          <Pagination
+            total={totalPages}
+            initialPage={currentPage}
+            onChange={(page) => setCurrentPage(page)}
+            className="pagination"
+          >
+            <PaginationItem key="prev" as="button">
+              Previous
+            </PaginationItem>
+            <PaginationCursor />
+            <PaginationItem key="next" as="button">
+              Next
+            </PaginationItem>
+          </Pagination>
+        </div>
       </Card>
     </div>
   );
