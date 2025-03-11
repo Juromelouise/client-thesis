@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   Button,
   Spinner,
   Divider,
   Textarea,
+  Pagination,
+  PaginationItem,
+  PaginationCursor,
 } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../utils/apiClient";
-import { toast } from "react-toastify";
+
 
 function ViewPlateNumber() {
   const { id } = useParams();
@@ -16,18 +19,24 @@ function ViewPlateNumber() {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [violations, setViolations] = useState("");
-  const [isDisabled, setIsDisabled] = useState(true);
   const [buttonTextColor, setButtonTextColor] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchReport = async () => {
+      setLoading(true);
       try {
-        const { data } = await apiClient.get(`/plate/admin/platenumbers/${id}`);
+        const { data } = await apiClient.get(`/plate/admin/platenumbers/${id}`, {
+          params: { page: currentPage, limit: itemsPerPage },
+        });
         console.log(data.data);
         setReport(data.data);
         setViolations(
           data.data.violations.map((v) => v.types.join(", ")).join("\n")
         );
+        setTotalPages(data.totalPages);
 
         // Load button text color state from cache
         const storedButtonTextColor = JSON.parse(sessionStorage.getItem("buttonTextColor")) || {};
@@ -39,7 +48,7 @@ function ViewPlateNumber() {
       }
     };
     fetchReport();
-  }, [id]);
+  }, [id, currentPage]);
 
   const handleButtonClick = (reportId) => {
     const newButtonTextColor = { ...buttonTextColor, [reportId]: "text-red-500" };
@@ -64,11 +73,6 @@ function ViewPlateNumber() {
       </div>
     );
   }
-
-  const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
 
   const handleViolationChange = (value) => {
     setViolations(value);
@@ -117,12 +121,28 @@ function ViewPlateNumber() {
             <p className="text-lg font-bold mb-1">Violations:</p>
             <div className="flex flex-wrap items-center">
               <Textarea
-                isDisabled={isDisabled}
+                isDisabled={true}
                 value={violations}
                 onChange={(e) => handleViolationChange(e.target.value)}
                 className="mr-2 mb-2 text-sm py-1 px-2 w-full"
               />
             </div>
+          </div>
+          <div className="flex justify-center mt-4">
+            <Pagination
+              total={totalPages}
+              initialPage={currentPage}
+              onChange={(page) => setCurrentPage(page)}
+              className="pagination"
+            >
+              <PaginationItem key="prev" as="button">
+                Previous
+              </PaginationItem>
+              <PaginationCursor />
+              <PaginationItem key="next" as="button">
+                Next
+              </PaginationItem>
+            </Pagination>
           </div>
         </div>
       </Card>

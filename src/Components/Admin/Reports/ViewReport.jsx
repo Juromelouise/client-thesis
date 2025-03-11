@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   Button,
@@ -30,7 +30,10 @@ const violationsList = [
   { value: "crosswalk", label: "Crosswalk Obstruction" },
   { value: "loading zone", label: "Loading Zone Violation" },
   { value: "bus stop", label: "Blocking Bus Stop" },
-  { value: "handicapped spot", label: "Unauthorized Parking in Handicapped Spot" },
+  {
+    value: "handicapped spot",
+    label: "Unauthorized Parking in Handicapped Spot",
+  },
   { value: "intersection", label: "Parking Near Intersection" },
   { value: "railroad crossing", label: "Parking Near Railroad Crossing" },
   { value: "curb", label: "Parking Too Close to Curb" },
@@ -48,7 +51,7 @@ function ViewReport() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("");
   const [statusChangeCount, setStatusChangeCount] = useState(0);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onClose } = useDisclosure();
   const {
     isOpen: isReasonModalOpen,
     onOpen: onReasonModalOpen,
@@ -56,7 +59,6 @@ function ViewReport() {
   } = useDisclosure();
   const [newStatus, setNewStatus] = useState("");
   const [reason, setReason] = useState("");
-  const [violations, setViolations] = useState([]);
   const [selectedViolations, setSelectedViolations] = useState([]);
 
   useEffect(() => {
@@ -66,21 +68,15 @@ function ViewReport() {
         setReport(data.report);
         setStatus(data.report.status);
         setStatusChangeCount(data.report.editableStatus);
-
-        // Fetch the violation of that specific report
-        const violation = data.report.plateNumber.violations.find(
-          (v) => v.report._id.toString() === id
-        );
-        if (violation) {
-          setViolations(violation.types);
-          setSelectedViolations(
-            violation.types.map((type) =>
-              // console.log(type)
-              violationsList.find((v) => v.label === type)
+        console.log(data.report);
+        setSelectedViolations(
+          data.report.plateNumber.violations.flatMap((violation) =>
+            violation.map((type) =>
+              violationsList.find((violation) => violation.label === type)
             )
-          );
-        }
-        
+          )
+        );
+        console.log(selectedViolations);
       } catch (error) {
         console.error("Error fetching report:", error);
       } finally {
@@ -89,6 +85,7 @@ function ViewReport() {
     };
     fetchReport();
   }, [id]);
+
   const handleStatusChange = async (newStatus, reason) => {
     try {
       const { data } = await apiClient.put(
@@ -135,7 +132,7 @@ function ViewReport() {
           violations: updatedViolations,
         }
       );
-      console.log(data)
+      console.log(data);
       // setViolations(data.report.violations.join("\n"));
       toast.success("Violations updated successfully!");
     } catch (error) {
@@ -267,10 +264,24 @@ function ViewReport() {
           )}
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Reporter:</p>
-            <p className="text-gray-700">
-              {report.reporter?.firstName} {report.reporter?.lastName}
-            </p>
-            <p className="text-gray-700">{report.reporter?.email}</p>
+            <div className="text-gray-700">
+              <p className="mb-1">
+                <span className="font-semibold">Name:</span>{" "}
+                {report.reporter?.firstName} {report.reporter?.lastName}
+              </p>
+              <p className="mb-1">
+                <span className="font-semibold">Email:</span>{" "}
+                {report.reporter?.email}
+              </p>
+              <p className="mb-1">
+                <span className="font-semibold">Phone Number:</span>{" "}
+                {report.reporter?.phoneNumber}
+              </p>
+              <p className="mb-1">
+                <span className="font-semibold">Address:</span>{" "}
+                {report.reporter?.address}
+              </p>
+            </div>
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Status:</p>
