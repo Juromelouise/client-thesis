@@ -12,7 +12,6 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../utils/apiClient";
 
-
 function ViewPlateNumber() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -20,17 +19,12 @@ function ViewPlateNumber() {
   const [loading, setLoading] = useState(true);
   const [violations, setViolations] = useState("");
   const [buttonTextColor, setButtonTextColor] = useState({});
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchReport = async () => {
       setLoading(true);
       try {
-        const { data } = await apiClient.get(`/plate/admin/platenumbers/${id}`, {
-          params: { page: currentPage, limit: itemsPerPage },
-        });
+        const { data } = await apiClient.get(`/plate/admin/platenumbers/${id}`);
         console.log(data.data);
         setReport(data.data);
         setViolations(
@@ -39,7 +33,8 @@ function ViewPlateNumber() {
         setTotalPages(data.totalPages);
 
         // Load button text color state from cache
-        const storedButtonTextColor = JSON.parse(sessionStorage.getItem("buttonTextColor")) || {};
+        const storedButtonTextColor =
+          JSON.parse(sessionStorage.getItem("buttonTextColor")) || {};
         setButtonTextColor(storedButtonTextColor);
       } catch (error) {
         console.error("Error fetching report:", error);
@@ -48,12 +43,18 @@ function ViewPlateNumber() {
       }
     };
     fetchReport();
-  }, [id, currentPage]);
+  }, [id]);
 
   const handleButtonClick = (reportId) => {
-    const newButtonTextColor = { ...buttonTextColor, [reportId]: "text-red-500" };
+    const newButtonTextColor = {
+      ...buttonTextColor,
+      [reportId]: "text-red-500",
+    };
     setButtonTextColor(newButtonTextColor);
-    sessionStorage.setItem("buttonTextColor", JSON.stringify(newButtonTextColor));
+    sessionStorage.setItem(
+      "buttonTextColor",
+      JSON.stringify(newButtonTextColor)
+    );
   };
 
   if (loading) {
@@ -110,7 +111,9 @@ function ViewPlateNumber() {
                     handleButtonClick(v.report._id);
                     navigate(`/single/report/${v.report._id}`);
                   }}
-                  className={`mr-2 mb-2 ${buttonTextColor[v.report._id] || "text-black"}`}
+                  className={`mr-2 mb-2 ${
+                    buttonTextColor[v.report._id] || "text-black"
+                  }`}
                 >
                   {v.report._id}
                 </Button>
@@ -127,22 +130,6 @@ function ViewPlateNumber() {
                 className="mr-2 mb-2 text-sm py-1 px-2 w-full"
               />
             </div>
-          </div>
-          <div className="flex justify-center mt-4">
-            <Pagination
-              total={totalPages}
-              initialPage={currentPage}
-              onChange={(page) => setCurrentPage(page)}
-              className="pagination"
-            >
-              <PaginationItem key="prev" as="button">
-                Previous
-              </PaginationItem>
-              <PaginationCursor />
-              <PaginationItem key="next" as="button">
-                Next
-              </PaginationItem>
-            </Pagination>
           </div>
         </div>
       </Card>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -15,6 +15,7 @@ import {
 } from "@heroui/react";
 import apiClient from "../../../utils/apiClient";
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
 const ReportList = ({ filterStatus }) => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const ReportList = ({ filterStatus }) => {
     setIsLoading(true);
     try {
       const res = await apiClient.get(`/report/admin/report`, {
-        params: { page, limit: itemsPerPage },
+        params: { page, limit: itemsPerPage, filterStatus },
       });
       setIsLoading(false);
       setData(res.data.data);
@@ -42,12 +43,7 @@ const ReportList = ({ filterStatus }) => {
 
   useEffect(() => {
     fetchReports(currentPage);
-  }, [currentPage]);
-
-  const handleSortChange = (descriptor) => {
-    setSortDescriptor(descriptor);
-    // Implement sorting logic if needed
-  };
+  }, [currentPage, filterStatus]);
 
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
@@ -63,6 +59,7 @@ const ReportList = ({ filterStatus }) => {
         ? data.filter((item) => item.status === filterStatus)
         : data;
       setPaginatedData(a);
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error filtering data:", error);
     }
@@ -78,7 +75,6 @@ const ReportList = ({ filterStatus }) => {
           selectionMode="single"
           aria-label="Example table with dynamic content"
           className="w-full"
-          onSortChange={handleSortChange}
         >
           <TableHeader>
             <TableColumn key="location" className="text-center w-1/12">
@@ -150,6 +146,9 @@ const ReportList = ({ filterStatus }) => {
       </Card>
     </div>
   );
+};
+ReportList.propTypes = {
+  filterStatus: PropTypes.string,
 };
 
 export default ReportList;

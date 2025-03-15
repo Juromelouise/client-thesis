@@ -64,6 +64,7 @@ function ViewReport() {
   useEffect(() => {
     const fetchReport = async () => {
       try {
+        setLoading(true);
         const { data } = await apiClient.get(`/report/admin/report/${id}`);
         setReport(data.report);
         setStatus(data.report.status);
@@ -124,6 +125,7 @@ function ViewReport() {
 
   const saveViolations = async () => {
     try {
+      setLoading(true);
       const updatedViolations = selectedViolations.map((v) => v.label);
       console.log(updatedViolations);
       const { data } = await apiClient.put(
@@ -133,9 +135,10 @@ function ViewReport() {
         }
       );
       console.log(data);
-      // setViolations(data.report.violations.join("\n"));
+      setLoading(false);
       toast.success("Violations updated successfully!");
     } catch (error) {
+      setLoading(false);  
       console.error("Error updating violations:", error);
       toast.error("Failed to update violations.");
     }
@@ -163,7 +166,6 @@ function ViewReport() {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-
   return (
     <div className="p-6">
       <Card className="shadow-lg max-w-4xl mx-auto p-6">
@@ -285,60 +287,35 @@ function ViewReport() {
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Status:</p>
-            <Dropdown>
-              <DropdownTrigger>
+            <div className="flex space-x-2">
+                             {status !== "Pending" && (
                 <Button
-                  className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg transition-colors duration-300 hover:from-pink-600 hover:to-yellow-600"
+                  className="bg-yellow-500 text-white shadow-lg transition-colors duration-300 hover:bg-yellow-600"
                   radius="full"
+                  onPress={() => handleStatusChangeClick("Pending")}
                 >
-                  {status}
+                  Pending
                 </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                {status && status === "Pending" && (
-                  <>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Approved")}
-                    >
-                      Approved
-                    </DropdownItem>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Disapproved")}
-                    >
-                      Disapproved
-                    </DropdownItem>
-                  </>
-                )}
-                {status && status === "Approved" && (
-                  <>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Pending")}
-                    >
-                      Pending
-                    </DropdownItem>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Disapproved")}
-                    >
-                      Disapproved
-                    </DropdownItem>
-                  </>
-                )}
-                {status && status === "Disapproved" && (
-                  <>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Pending")}
-                    >
-                      Pending
-                    </DropdownItem>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Approved")}
-                    >
-                      Approved
-                    </DropdownItem>
-                  </>
-                )}
-              </DropdownMenu>
-            </Dropdown>
+              )}
+              {status !== "Approved" && (
+                <Button
+                  className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
+                  radius="full"
+                  onPress={() => handleStatusChangeClick("Approved")}
+                >
+                  Approved
+                </Button>
+              )}
+              {status !== "Disapproved" && (
+                <Button
+                  className="bg-red-500 text-white shadow-lg transition-colors duration-300 hover:bg-red-600"
+                  radius="full"
+                  onPress={() => handleStatusChangeClick("Disapproved")}
+                >
+                  Disapproved
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </Card>
