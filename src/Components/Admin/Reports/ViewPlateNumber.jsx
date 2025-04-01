@@ -5,9 +5,6 @@ import {
   Spinner,
   Divider,
   Textarea,
-  Pagination,
-  PaginationItem,
-  PaginationCursor,
 } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../utils/apiClient";
@@ -18,7 +15,7 @@ function ViewPlateNumber() {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [violations, setViolations] = useState("");
-  const [buttonTextColor, setButtonTextColor] = useState({});
+  const [buttonOpacity, setButtonOpacity] = useState({});
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -30,12 +27,11 @@ function ViewPlateNumber() {
         setViolations(
           data.data.violations.map((v) => v.types.join(", ")).join("\n")
         );
-        setTotalPages(data.totalPages);
 
-        // Load button text color state from cache
-        const storedButtonTextColor =
-          JSON.parse(sessionStorage.getItem("buttonTextColor")) || {};
-        setButtonTextColor(storedButtonTextColor);
+        // Load button opacity state from cache
+        const storedButtonOpacity =
+          JSON.parse(sessionStorage.getItem("buttonOpacity")) || {};
+        setButtonOpacity(storedButtonOpacity);
       } catch (error) {
         console.error("Error fetching report:", error);
       } finally {
@@ -46,14 +42,14 @@ function ViewPlateNumber() {
   }, [id]);
 
   const handleButtonClick = (reportId) => {
-    const newButtonTextColor = {
-      ...buttonTextColor,
-      [reportId]: "text-red-500",
+    const newButtonOpacity = {
+      ...buttonOpacity,
+      [reportId]: 0.5,
     };
-    setButtonTextColor(newButtonTextColor);
+    setButtonOpacity(newButtonOpacity);
     sessionStorage.setItem(
-      "buttonTextColor",
-      JSON.stringify(newButtonTextColor)
+      "buttonOpacity",
+      JSON.stringify(newButtonOpacity)
     );
   };
 
@@ -77,6 +73,19 @@ function ViewPlateNumber() {
 
   const handleViolationChange = (value) => {
     setViolations(value);
+  };
+
+  const getButtonClass = (status) => {
+    switch (status) {
+      case "Pending":
+        return "bg-gray-500 text-white";
+      case "Approved":
+        return "bg-green-500 text-white";
+      case "Disapproved":
+        return "bg-red-500 text-white";
+      default:
+        return "bg-gray-500 text-white";
+    }
   };
 
   return (
@@ -106,16 +115,15 @@ function ViewPlateNumber() {
             <div className="flex flex-wrap">
               {report.violations.map((v) => (
                 <Button
-                  key={v.report._id}
+                  key={v.id}
                   onPress={() => {
-                    handleButtonClick(v.report._id);
-                    navigate(`/single/report/${v.report._id}`);
+                    handleButtonClick(v.id);
+                    navigate(`/single/report/${v.id}`);
                   }}
-                  className={`mr-2 mb-2 ${
-                    buttonTextColor[v.report._id] || "text-black"
-                  }`}
+                  className={`mr-2 mb-2 ${getButtonClass(v.status)}`}
+                  style={{ opacity: buttonOpacity[v.id] || 1 }}
                 >
-                  {v.report._id}
+                  {v.id}
                 </Button>
               ))}
             </div>
