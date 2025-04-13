@@ -10,10 +10,6 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
 } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import Select from "react-select";
@@ -214,7 +210,7 @@ function ViewReport() {
                 className="w-full max-w-md"
                 classNamePrefix="react-select"
               />
-              {status && status === "Resolved" ? (
+              {status && status === "Resolved" || status === "Approved" || status === "Disapproved" ? (
                 <></>
               ) : (
                 <Button
