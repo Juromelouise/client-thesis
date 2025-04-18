@@ -20,22 +20,22 @@ const outerBounds = [
   { lat: 15.0, lng: 120.5 }, // Close the polygon
 ];
 
-// Define the coordinates for the boundary of Barangay Western Bicutan
+// Updated coordinates for Barangay Western Bicutan boundary
 const westernBicutanCoords = [
-  { lat: 14.5226, lng: 121.0432 },
-  { lat: 14.5205, lng: 121.0376 },
-  { lat: 14.5183, lng: 121.0381 },
-  { lat: 14.5161, lng: 121.0394 },
-  { lat: 14.5152, lng: 121.0415 },
-  { lat: 14.5143, lng: 121.0438 },
-  { lat: 14.5135, lng: 121.0451 },
-  { lat: 14.5142, lng: 121.0483 },
-  { lat: 14.5156, lng: 121.0497 },
-  { lat: 14.5173, lng: 121.0508 },
-  { lat: 14.5192, lng: 121.0503 },
-  { lat: 14.5210, lng: 121.0495 },
-  { lat: 14.5224, lng: 121.0478 },
-  { lat: 14.5226, lng: 121.0432 }, // Close the polygon
+  { lat: 14.5231, lng: 121.0359 },
+  { lat: 14.5208, lng: 121.0365 },
+  { lat: 14.5192, lng: 121.0378 },
+  { lat: 14.5181, lng: 121.0392 },
+  { lat: 14.5168, lng: 121.0410 },
+  { lat: 14.5156, lng: 121.0432 },
+  { lat: 14.5148, lng: 121.0450 },
+  { lat: 14.5145, lng: 121.0472 },
+  { lat: 14.5153, lng: 121.0490 },
+  { lat: 14.5167, lng: 121.0503 },
+  { lat: 14.5185, lng: 121.0508 },
+  { lat: 14.5202, lng: 121.0498 },
+  { lat: 14.5220, lng: 121.0480 },
+  { lat: 14.5231, lng: 121.0359 }, // Close the polygon
 ];
 
 const maskOptions = {
