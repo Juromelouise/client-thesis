@@ -2,8 +2,8 @@
 import React from "react";
 import {
   GoogleMap,
-  LoadScript,
   HeatmapLayer,
+  useJsApiLoader,
 } from "@react-google-maps/api";
 
 const containerStyle = {
@@ -17,24 +17,26 @@ const center = {
 };
 
 const HeatMap = () => {
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries: ["visualization"],
+  });
+
+  if (!isLoaded) return <div>Loading...</div>;
+
   const heatmapData = [
     new window.google.maps.LatLng(14.5172195, 121.0363768),
-    // Add more LatLng points here as needed
+    // Add more LatLngs if needed
   ];
 
   return (
-    <LoadScript
-      googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-      libraries={["visualization"]}
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={center}
+      zoom={14}
     >
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={14}
-      >
-        <HeatmapLayer data={heatmapData} />
-      </GoogleMap>
-    </LoadScript>
+      <HeatmapLayer data={heatmapData} />
+    </GoogleMap>
   );
 };
 
