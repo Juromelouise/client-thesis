@@ -1,9 +1,11 @@
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
 import { useEffect, useState, useRef } from "react";
+import apiClient from "../../../utils/apiClient";
 
 const DashedBorderWithHeatmap = () => {
   const map = useMap();
   const [boundaryCoords, setBoundaryCoords] = useState([]);
+  const [heatmapPoints, setHeatmapPoints] = useState([]); // State for heatmap points
 
   useEffect(() => {
     console.log("Fetching geojson data...");
@@ -33,13 +35,26 @@ const DashedBorderWithHeatmap = () => {
   }, []);
 
   useEffect(() => {
-    if (!map || !window.google || !window.google.maps || boundaryCoords.length === 0) return;
+    // Fetch coordinates from the backend using Axios
+    apiClient
+      .get(`/map/coordinates`)
+      .then((response) => {
+        const points = response.data.map(
+          (coord) => new window.google.maps.LatLng(coord.lat, coord.lng)
+        );
+        setHeatmapPoints(points); // Set the heatmap points
+      })
+      .catch((error) => console.error("Error fetching coordinates:", error));
+  }, []);
 
-    const heatmapPoints = [
-      new window.google.maps.LatLng(14.5175, 121.0321),
-      new window.google.maps.LatLng(14.518, 121.033),
-      new window.google.maps.LatLng(14.516, 121.031),
-    ];
+  useEffect(() => {
+    if (
+      !map ||
+      !window.google ||
+      !window.google.maps ||
+      boundaryCoords.length === 0
+    )
+      return;
 
     const dashedLine = new window.google.maps.Polyline({
       path: boundaryCoords,
@@ -60,8 +75,8 @@ const DashedBorderWithHeatmap = () => {
     });
 
     const heatmap = new window.google.maps.visualization.HeatmapLayer({
-      data: heatmapPoints,
-      radius: 30,
+      data: heatmapPoints, // Use the fetched heatmap points
+      radius: 20,
       map: map,
     });
 
@@ -69,7 +84,7 @@ const DashedBorderWithHeatmap = () => {
       dashedLine.setMap(null);
       heatmap.setMap(null);
     };
-  }, [map, boundaryCoords]);
+  }, [map, boundaryCoords, heatmapPoints]);
 
   return null;
 };
