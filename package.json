@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
     "@heroui/react": "2.6.13",
     "@iconify/react": "^5.2.0",
     "@react-google-maps/api": "^2.20.5",
@@ -18,6 +20,8 @@
     "@reduxjs/toolkit": "^2.5.0",
     "@vis.gl/react-google-maps": "^1.5.2",
     "axios": "^1.7.9",
+    "bad-words": "^4.0.0",
+    "filipino-badwords-list": "^1.1.2",
     "firebase": "^11.1.0",
     "framer-motion": "^11.15.0",
     "react": "^18.3.1",

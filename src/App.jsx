@@ -14,6 +14,7 @@ import Register from "./Components/User/Register";
 import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ViewPlateNumber from "./Components/Admin/Reports/ViewPlateNumber";
+import SpecificReport from "./Components/Home/SpecificReport";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} exact="true" />
           <Route path="/FYP" element={<FYP />} exact="true" />
+          <Route path="/report/:id" element={<SpecificReport />} exact="true" />
           <Route path="/profile" element={<Profile />} exact="true" />
 
           {/* USER */}
