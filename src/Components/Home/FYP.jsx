@@ -55,7 +55,7 @@ const ReportCard = ({
         {/* Image Boxes */}
         <PhotoProvider>
           <div className="flex justify-between mb-4 relative">
-            {images.map((image, index) => (
+            {images?.map((image, index) => (
               <PhotoView key={index} src={image.url}>
                 {index < 2 ? (
                   <div className="relative w-1/2 h-48 mx-1">

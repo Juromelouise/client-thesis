@@ -66,7 +66,7 @@ function SpecificReport() {
           {/* Images with PhotoView */}
           <PhotoProvider>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {report.imagesAdmin?.map((image, index) => (
+              {report.images?.map((image, index) => (
                 <PhotoView key={index} src={image.url}>
                   <img
                     src={image.url}

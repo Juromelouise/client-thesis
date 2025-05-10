@@ -233,7 +233,7 @@ function ViewReport() {
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Images:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {report.images.map((image, index) => (
+              {report?.imagesAdmin?.map((image, index) => (
                 <PhotoView key={index} src={image.url}>
                   <img
                     src={image.url}
@@ -282,7 +282,7 @@ function ViewReport() {
             </div>
           </div>
           <div className="mb-6">
-            <p className="text-lg font-bold mb-1">Status:</p>
+            <p className="text-lg font-bold mb-1">Status: {status}</p>
             <div className="flex space-x-2">
                              {status !== "Pending" && (
                 <Button
