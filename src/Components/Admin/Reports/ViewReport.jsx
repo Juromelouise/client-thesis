@@ -19,38 +19,12 @@ import { PhotoView } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
 
 const violationsList = [
-  { value: "overnight", label: "Overnight Parking" },
-  { value: "dangerous", label: "Hazard Parking" },
-  { value: "traffic hazard", label: "Hazard Parking" },
-  { value: "corner view", label: "Hazard Parking" },
-  { value: "lane block", label: "Hazard Parking" },
-  { value: "blocking way", label: "Illegal Parking" },
-  { value: "no parking", label: "Illegal Parking" },
-  { value: "illegally parked", label: "Illegal Parking" },
-  { value: "not allowed", label: "Illegal Parking" },
-  { value: "towing area", label: "Towing Zone" },
-  { value: "tow-away", label: "Towing Zone" },
-  { value: "tow violation", label: "Towing Zone" },
-  { value: "loading zone", label: "Loading and Unloading Violation" },
-  { value: "unloading obstruction", label: "Loading and Unloading Violation" },
-  { value: "no loading", label: "Loading and Unloading Violation" },
-  { value: "crosswalk", label: "Crosswalk Obstruction" },
-  { value: "intersection", label: "Intersection Obstruction" },
-  { value: "fire station", label: "Fire Station Obstruction" },
-  { value: "driveway", label: "Blocking Driveway" },
-  { value: "vehicle path", label: "Blocking Driveway" },
-  { value: "school entrance", label: "School Entrance Obstruction" },
-  { value: "stop sign", label: "Traffic Sign Obstruction" },
-  { value: "truck block", label: "Improper Delivery Parking" },
-  { value: "PUV loading", label: "Unauthorized Loading/Unloading by PUV" },
-  { value: "vendor", label: "Sidewalk Vendor Violation" },
-  { value: "sidewalk park", label: "Illegal Sidewalk Parking" },
-  { value: "garbage", label: "Improper Garbage Disposal" },
-  { value: "basketball hoop", label: "Unauthorized Court on Road" },
-  { value: "animal pen", label: "Animal Pen Obstruction" },
-  { value: "construction debris", label: "Construction Material Obstruction" },
-  { value: "business sign", label: "Business Sign Obstruction" },
-  { value: "tricycle terminal", label: "Public Terminal Obstruction" },
+  { value: "Overnight parking", label: "Overnight Parking" },
+  { value: "Hazard parking", label: "Hazard parking" },
+  { value: "Illegal parking", label: "Illegal parking" },
+  { value: "Towing Zone", label: "Towing Zone" },
+  { value: "Loading and Unloading", label: "Loading and Unloading" },
+  { value: "Illegal Sidewalk Use", label: "Illegal Sidewalk Use" },
 ];
 
 function ViewReport() {
@@ -78,7 +52,7 @@ function ViewReport() {
         setReport(data.report);
         setStatus(data.report.status);
         setStatusChangeCount(data.report.editableStatus);
-        console.log(data.report);
+        console.log(data.report.plateNumber);
         setSelectedViolations(
           data.report.plateNumber.violations.flatMap((violation) =>
             violation.map((type) =>
@@ -86,7 +60,6 @@ function ViewReport() {
             )
           )
         );
-        console.log(selectedViolations);
       } catch (error) {
         console.error("Error fetching report:", error);
       } finally {
@@ -136,7 +109,6 @@ function ViewReport() {
     try {
       setLoading(true);
       const updatedViolations = selectedViolations.map((v) => v.label);
-      console.log(updatedViolations);
       const { data } = await apiClient.put(
         `/plate/admin/report/violations/${report._id}`,
         {
@@ -147,7 +119,7 @@ function ViewReport() {
       setLoading(false);
       toast.success("Violations updated successfully!");
     } catch (error) {
-      setLoading(false);  
+      setLoading(false);
       console.error("Error updating violations:", error);
       toast.error("Failed to update violations.");
     }
@@ -223,7 +195,9 @@ function ViewReport() {
                 className="w-full max-w-md"
                 classNamePrefix="react-select"
               />
-              {status && status === "Resolved" || status === "Approved" || status === "Disapproved" ? (
+              {(status && status === "Resolved") ||
+              status === "Approved" ||
+              status === "Disapproved" ? (
                 <></>
               ) : (
                 <Button
@@ -234,6 +208,14 @@ function ViewReport() {
                 </Button>
               )}
             </div>
+          </div>
+          <div className="mb-6">
+            <p className="text-lg font-bold mb-1">Offense:</p>
+            {!report?.plateNumber?.offense ? (
+              <p className="text-gray-700">No offense</p>
+            ) : (
+              <p className="text-gray-700">{report?.plateNumber?.offense.offense}</p>
+            )}
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Date Reported:</p>
@@ -297,7 +279,7 @@ function ViewReport() {
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Status: {status}</p>
             <div className="flex space-x-2">
-                             {status !== "Pending" && (
+              {status !== "Pending" && (
                 <Button
                   className="bg-yellow-500 text-white shadow-lg transition-colors duration-300 hover:bg-yellow-600"
                   radius="full"

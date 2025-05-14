@@ -23,6 +23,7 @@ import apiClient from "../../utils/apiClient";
 import Charts from "./Charts/Charts";
 import PlateNumberList from "./Reports/PlateNumberList";
 import StreetLegends from "./Maps/StreetLegends";
+import Userlist from "./User/Userlist";
 
 const Dashboard = () => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -49,6 +50,8 @@ const Dashboard = () => {
         return <AnnouncementPage ref={announcementPageRef} />;
       case "StreetLegends":
         return <StreetLegends />;
+      case "Userlist":
+        return <Userlist />;
       default:
         return <div>Select a page</div>;
     }
@@ -216,6 +219,16 @@ const Dashboard = () => {
           onPress={() => setActivePage("Announcement")}
         >
           Announcement
+        </Button>
+        <Button
+          className={`mb-2 ${
+            activePage === "Userlist"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700"
+          }`}
+          onPress={() => setActivePage("Userlist")}
+        >
+          User Management
         </Button>
       </div>
       <div className="flex-1 bg-white p-6 rounded-lg shadow-md">
