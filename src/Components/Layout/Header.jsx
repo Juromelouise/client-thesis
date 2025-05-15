@@ -36,7 +36,10 @@ export default function Header() {
   };
 
   useEffect(() => {
-    setUser(getUser());
+    const updateUser = () => setUser(getUser());
+    updateUser();
+    window.addEventListener("user-logged-in", updateUser);
+    return () => window.removeEventListener("user-logged-in", updateUser);
   }, []);
 
   const handleLogout = () => {

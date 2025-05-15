@@ -4,8 +4,12 @@ import apiClient from "../../utils/apiClient";
 import { PhotoProvider, PhotoView } from "react-photo-view";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
+import { Filter } from "bad-words";
+import badWords from "filipino-badwords-list";
+import { filterText } from "../../utils/filterText";
 
 function SpecificReport() {
+  const filter = new Filter({ list: badWords.array });
   const { id } = useParams();
   const [report, setReport] = useState(null);
   const [comments, setComments] = useState([]);
@@ -50,7 +54,11 @@ function SpecificReport() {
   }
 
   if (!report) {
-    return <div className="text-center text-red-500 mt-10">Error: Report not found.</div>;
+    return (
+      <div className="text-center text-red-500 mt-10">
+        Error: Report not found.
+      </div>
+    );
   }
 
   return (
@@ -58,7 +66,9 @@ function SpecificReport() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Report Details */}
         <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">{report.original}</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+            {report.original}
+          </h1>
           <p className="text-gray-600 text-sm mb-6">
             <span className="font-semibold">Location:</span> {report.location}
           </p>
@@ -91,7 +101,8 @@ function SpecificReport() {
                 >
                   <div className="flex justify-between items-center mb-1">
                     <h3 className="text-sm font-semibold text-gray-800">
-                      {comment.user?.firstName + " " + comment.user?.lastName || "Anonymous"}
+                      {comment.user?.firstName + " " + comment.user?.lastName ||
+                        "Anonymous"}
                     </h3>
                     <p className="text-xs text-gray-500">
                       {new Date(comment.createdAt).toLocaleDateString("en-US", {
@@ -101,7 +112,12 @@ function SpecificReport() {
                       })}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-700">{comment.content}</p>
+                  <p
+                    className="text-sm text-gray-700"
+                    dangerouslySetInnerHTML={{
+                      __html: filterText(comment?.content),
+                    }}
+                  ></p>
                 </div>
               ))
             ) : (
