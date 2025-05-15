@@ -101,6 +101,7 @@ const FYP = () => {
       const response = await apiClient.get(
         `/report/fetch/all/reports?page=${page}&limit=10`
       );
+      console.log(response.data.data);
       setData((prevData) => [...prevData, ...response.data.data]);
       setLoading(false);
     } catch (error) {
@@ -130,7 +131,7 @@ const FYP = () => {
             createdAt={item.createdAt}
             location={item.location}
             images={item.images}
-            description={item.description}
+            description={item.original}
             reporter={`${item.reporter.firstName} ${item.reporter.lastName}`}
             avatar={item.reporter.avatar.url}
             navigate={navigate}

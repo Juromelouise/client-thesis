@@ -74,13 +74,20 @@ const PlateNumberList = () => {
           >
             {(item) => (
               <TableRow key={item._id}>
-                <TableCell className="text-center">{item?.plateNumber}</TableCell>
                 <TableCell className="text-center">
-                  {item?.violations.map(violation => violation.types.join(", ")).join(", ")}
+                  {item?.plateNumber}
                 </TableCell>
                 <TableCell className="text-center">
-                  {item?.count}
+                  {(() => {
+                    const violationsText = item?.violations
+                      .map((violation) => violation.types.join(", "))
+                      .join(", ");
+                    return violationsText.length > 30
+                      ? violationsText.slice(0, 30) + "..."
+                      : violationsText;
+                  })()}
                 </TableCell>
+                <TableCell className="text-center">{item?.count}</TableCell>
                 <TableCell className="text-center">
                   <Button
                     auto

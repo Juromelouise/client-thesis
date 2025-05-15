@@ -58,7 +58,7 @@ function SpecificReport() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Report Details */}
         <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">{report.description}</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">{report.original}</h1>
           <p className="text-gray-600 text-sm mb-6">
             <span className="font-semibold">Location:</span> {report.location}
           </p>

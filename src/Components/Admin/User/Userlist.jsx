@@ -37,12 +37,25 @@ function Userlist() {
 
   const banUser = async (userId) => {
     try {
-        const response = await apiClient.put(`/user/ban-user/${userId}`);
-        console.log("User banned successfully:", response.data.user);
-        fetchUsers();
+      const response = await apiClient.put(`/user/ban-user/${userId}`);
+      console.log("User banned successfully:", response.data.user);
+      fetchUsers();
+      toast.success("User banned successfully");
     } catch (error) {
-        console.error("Error banning user:", error);
-        toast.error("Error banning user");
+      console.error("Error banning user:", error);
+      toast.error("Error banning user");
+    }
+  };
+
+  const unbanUser = async (userId) => {
+    try {
+      console.log("Unban user ID:", userId);
+      await apiClient.put(`/user/unban-user/${userId}`);
+      fetchUsers();
+      toast.success("User unbanned successfully");
+    } catch (error) {
+      console.error("Error unbanning user:", error);
+      toast.error("Error unbanning user");
     }
   };
 
@@ -66,27 +79,36 @@ function Userlist() {
         }}
       >
         <TableHeader>
-          <TableColumn>Name</TableColumn>
-          <TableColumn>Email</TableColumn>
-          <TableColumn>Phone Number</TableColumn>
-          <TableColumn>Action</TableColumn>
-        </TableHeader>
+          <TableColumn style={{ textAlign: "center" }}>Name</TableColumn>
+          <TableColumn style={{ textAlign: "center" }}>Email</TableColumn>
+          <TableColumn style={{ textAlign: "center" }}>
+            Phone Number
+          </TableColumn>
+          <TableColumn style={{ textAlign: "center" }}>Action</TableColumn>
+        </TableHeader>  
         <TableBody>
           {currentUsers.map((user) => (
             <TableRow key={user._id}>
               {!user.lastName ? (
-                <TableCell>{user.firstName}</TableCell>
+                <TableCell style={{ textAlign: "center" }}>{user.firstName}</TableCell>
               ) : (
-                <TableCell>{user.firstName + " " + user.lastName}</TableCell>
+                <TableCell style={{ textAlign: "center" }}>{user.firstName + " " + user.lastName}</TableCell>
               )}
-              <TableCell>{user.email}</TableCell>
+              <TableCell style={{ textAlign: "center" }}>{user.email}</TableCell>
               {!user.phoneNumber ? (
-                <TableCell>None</TableCell>
+                <TableCell style={{ textAlign: "center" }}>None</TableCell>
               ) : (
-                <TableCell>{user.phoneNumber}</TableCell>
+                <TableCell style={{ textAlign: "center" }}>{user.phoneNumber}</TableCell>
               )}
               <TableCell>
-                <div style={{ display: "flex", gap: "10px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
                   {user.deleted === false ? (
                     <Icon
                       icon={banIcon}
@@ -95,20 +117,12 @@ function Userlist() {
                       onClick={() => banUser(user._id)}
                     />
                   ) : (
-                    <>
-                      <Icon
-                        icon={deleteIcon}
-                        style={{ color: "black", cursor: "pointer" }}
-                        title="Delete User"
-                        onClick={() => console.log(`Delete user: ${user._id}`)}
-                      />
-                      <Icon
-                        icon={restoreIcon}
-                        style={{ color: "green", cursor: "pointer" }}
-                        title="Restore User"
-                        onClick={() => console.log(`Restore user: ${user._id}`)}
-                      />
-                    </>
+                    <Icon
+                      icon={restoreIcon}
+                      style={{ color: "green", cursor: "pointer" }}
+                      title="Restore User"
+                      onClick={() => unbanUser(user._id)}
+                    />
                   )}
                 </div>
               </TableCell>

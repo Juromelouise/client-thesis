@@ -138,7 +138,6 @@ import {
   Link,
   Form,
   Divider,
-  Alert,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -146,14 +145,13 @@ import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import { authenticate } from "../../utils/helpers";
 import apiClient from "../../utils/apiClient";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [alert, setAlert] = React.useState("");
-  const [error, setError] = React.useState("");
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
@@ -170,8 +168,7 @@ export default function Login() {
         window.location.reload();
       });
     } catch (error) {
-      setAlert("error");
-      setError(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 
@@ -199,6 +196,7 @@ export default function Login() {
       });
     } catch (e) {
       console.log(e);
+      toast.error(e.response.data.message);
     }
   };
 
@@ -214,9 +212,6 @@ export default function Login() {
       </div>
       <div className="flex w-1/2 items-center justify-center">
         <div className="flex w-full max-w-sm flex-col gap-4 rounded-large px-8 pb-10 pt-6 mt-16 bg-white shadow-lg">
-          {alert && alert === "error" && (
-            <Alert color="danger" danger title={error} />
-          )}
           <Form
             className="flex flex-col gap-3"
             validationBehavior="native"

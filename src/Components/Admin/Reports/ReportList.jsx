@@ -77,7 +77,7 @@ const ReportList = ({ filterStatus }) => {
           className="w-full"
         >
           <TableHeader>
-            <TableColumn key="location" className="text-center w-1/12">
+            <TableColumn key="location" className="text-center w-2/12">
               Location
             </TableColumn>
             <TableColumn key="plateNumber" className="text-center w-3/12">
@@ -94,17 +94,26 @@ const ReportList = ({ filterStatus }) => {
           <TableBody
             isLoading={isLoading}
             items={paginatedData}
-            loadingContent={<Spinner label="Loading..." />}
+            loadingContent={<Spinner/>}
             getKey={(item) => item._id}
           >
             {(item) => (
               <TableRow key={item._id}>
-                <TableCell className="text-center">{item.location}</TableCell>
+                <TableCell className="text-center">
+                  {item.location && item.location.length > 40
+                    ? item.location.slice(0, 40) + "..."
+                    : item.location}
+                </TableCell>
                 <TableCell className="text-center">
                   {item.plateNumber}
                 </TableCell>
                 <TableCell className="text-center">
-                  {item.types.join(", ")}
+                  {(() => {
+                    const violationsText = item.types.join(", ");
+                    return violationsText.length > 30
+                      ? violationsText.slice(0, 30) + "..."
+                      : violationsText;
+                  })()}
                 </TableCell>
                 <TableCell className="text-center">
                   {formatDate(item.createdAt)}
