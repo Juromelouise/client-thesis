@@ -7,18 +7,49 @@ import {
   TableCell,
   TableRow,
   TableColumn,
+  Button,
+  Select,
+  SelectItem,
+  Input,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  DatePicker,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import banIcon from "@iconify-icons/fa-solid/ban";
-import deleteIcon from "@iconify-icons/fa-solid/trash";
 import restoreIcon from "@iconify-icons/fa-solid/undo";
 import apiClient from "../../../utils/apiClient";
 import { toast } from "react-toastify";
+
+const BAN_REASONS = [
+  "Submitting false or misleading reports",
+  "Using inappropriate or offensive language in comments",
+  "Violating terms and agreements",
+];
+
+const BAN_DURATIONS = [
+  { label: "1 day", value: 1 },
+  { label: "3 days", value: 3 },
+  { label: "7 days", value: 7 },
+  { label: "14 days", value: 14 },
+  { label: "Other (pick date)", value: "other" },
+];
 
 function Userlist() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Modal state
+  const [banModalOpen, setBanModalOpen] = useState(false);
+  const [banUserId, setBanUserId] = useState(null);
+  const [banReason, setBanReason] = useState("");
+  const [banDuration, setBanDuration] = useState("");
+  const [banCustomDate, setBanCustomDate] = useState(null);
+  const [banAttachment, setBanAttachment] = useState(null);
 
   const fetchUsers = async () => {
     try {
@@ -35,12 +66,55 @@ function Userlist() {
     fetchUsers();
   }, []);
 
-  const banUser = async (userId) => {
+  const openBanModal = (userId) => {
+    setBanUserId(userId);
+    setBanReason("");
+    setBanDuration("");
+    setBanCustomDate(null);
+    setBanAttachment(null);
+    setBanModalOpen(true);
+  };
+
+  const closeBanModal = () => {
+    setBanModalOpen(false);
+  };
+
+  const handleBanSubmit = async (e) => {
+    e.preventDefault();
+    if (
+      !banReason ||
+      !banDuration ||
+      (banDuration === "other" && !banCustomDate)
+    ) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("reason", banReason);
+    if (banDuration === "other") {
+      const jsDate = banCustomDate
+        ? new Date(
+            banCustomDate.year,
+            banCustomDate.month - 1,
+            banCustomDate.day
+          )
+        : null;
+      formData.append("endDate", jsDate ? jsDate.toISOString() : "");
+    } else {
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + Number(banDuration));
+      formData.append("endDate", endDate.toISOString());
+    }
+    if (banAttachment) {
+      formData.append("attachment", banAttachment);
+    }
     try {
-      const response = await apiClient.put(`/user/ban-user/${userId}`);
-      console.log("User banned successfully:", response.data.user);
+      await apiClient.put(`/user/ban-user/${banUserId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       fetchUsers();
       toast.success("User banned successfully");
+      closeBanModal();
     } catch (error) {
       console.error("Error banning user:", error);
       toast.error("Error banning user");
@@ -49,7 +123,6 @@ function Userlist() {
 
   const unbanUser = async (userId) => {
     try {
-      console.log("Unban user ID:", userId);
       await apiClient.put(`/user/unban-user/${userId}`);
       fetchUsers();
       toast.success("User unbanned successfully");
@@ -64,7 +137,6 @@ function Userlist() {
   }
 
   const ITEMS_PER_PAGE = 4;
-
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentUsers = users.slice(startIndex, endIndex);
@@ -85,20 +157,28 @@ function Userlist() {
             Phone Number
           </TableColumn>
           <TableColumn style={{ textAlign: "center" }}>Action</TableColumn>
-        </TableHeader>  
+        </TableHeader>
         <TableBody>
           {currentUsers.map((user) => (
             <TableRow key={user._id}>
               {!user.lastName ? (
-                <TableCell style={{ textAlign: "center" }}>{user.firstName}</TableCell>
+                <TableCell style={{ textAlign: "center" }}>
+                  {user.firstName}
+                </TableCell>
               ) : (
-                <TableCell style={{ textAlign: "center" }}>{user.firstName + " " + user.lastName}</TableCell>
+                <TableCell style={{ textAlign: "center" }}>
+                  {user.firstName + " " + user.lastName}
+                </TableCell>
               )}
-              <TableCell style={{ textAlign: "center" }}>{user.email}</TableCell>
+              <TableCell style={{ textAlign: "center" }}>
+                {user.email}
+              </TableCell>
               {!user.phoneNumber ? (
                 <TableCell style={{ textAlign: "center" }}>None</TableCell>
               ) : (
-                <TableCell style={{ textAlign: "center" }}>{user.phoneNumber}</TableCell>
+                <TableCell style={{ textAlign: "center" }}>
+                  {user.phoneNumber}
+                </TableCell>
               )}
               <TableCell>
                 <div
@@ -114,7 +194,7 @@ function Userlist() {
                       icon={banIcon}
                       style={{ color: "red", cursor: "pointer" }}
                       title="Ban User"
-                      onClick={() => banUser(user._id)}
+                      onClick={() => openBanModal(user._id)}
                     />
                   ) : (
                     <Icon
@@ -130,7 +210,76 @@ function Userlist() {
           ))}
         </TableBody>
       </Table>
-      {/* Add spacing and align pagination to the right */}
+      {/* Ban Modal */}
+      <Modal
+        isOpen={banModalOpen}
+        onClose={closeBanModal}
+        size="md"
+        placement="center"
+        backdrop="opaque"
+      >
+        <ModalContent>
+          <form onSubmit={handleBanSubmit}>
+            <ModalHeader>
+              <h2 className="text-lg font-bold">Ban User</h2>
+            </ModalHeader>
+            <ModalBody>
+              <div className="flex flex-col gap-4">
+                <Select
+                  label="Reason for banning"
+                  isRequired
+                  value={banReason}
+                  onChange={setBanReason}
+                  placeholder="Select reason"
+                >
+                  {BAN_REASONS.map((reason) => (
+                    <SelectItem key={reason} value={reason}>
+                      {reason}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Select
+                  label="Ban duration"
+                  isRequired
+                  value={banDuration}
+                  onChange={(e) => setBanDuration(e.target.value)}
+                  placeholder="Select duration"
+                >
+                  {BAN_DURATIONS.map((d) => (
+                    <SelectItem key={d.value} value={d.value}>
+                      {d.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+                {banDuration === "other" && (
+                  <DatePicker
+                    label="Custom end date"
+                    isRequired
+                    value={banCustomDate}
+                    onChange={setBanCustomDate}
+                    placeholder="mm/dd/yyyy"
+                    labelPlacement="outside"
+                  />
+                )}
+                <Input
+                  label="Attachment (optional)"
+                  type="file"
+                  onChange={(e) => setBanAttachment(e.target.files[0])}
+                />
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="danger" variant="light" onClick={closeBanModal}>
+                Cancel
+              </Button>
+              <Button color="primary" type="submit">
+                Ban User
+              </Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal>
+      {/* Pagination */}
       <div
         style={{
           display: "flex",
