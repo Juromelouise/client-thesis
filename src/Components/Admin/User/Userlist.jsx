@@ -28,6 +28,7 @@ const BAN_REASONS = [
   "Submitting false or misleading reports",
   "Using inappropriate or offensive language in comments",
   "Violating terms and agreements",
+  "Spam or irrelevant content",
 ];
 
 const BAN_DURATIONS = [
@@ -81,6 +82,7 @@ function Userlist() {
 
   const handleBanSubmit = async (e) => {
     e.preventDefault();
+    console.log("Ban user ID:", banReason);
     if (
       !banReason ||
       !banDuration ||
@@ -229,7 +231,7 @@ function Userlist() {
                   label="Reason for banning"
                   isRequired
                   value={banReason}
-                  onChange={setBanReason}
+                  onChange={(e) => setBanReason(e.target.value)}
                   placeholder="Select reason"
                 >
                   {BAN_REASONS.map((reason) => (
