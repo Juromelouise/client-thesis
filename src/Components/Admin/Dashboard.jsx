@@ -24,6 +24,7 @@ import Charts from "./Charts/Charts";
 import PlateNumberList from "./Reports/PlateNumberList";
 import StreetLegends from "./Maps/StreetLegends";
 import Userlist from "./User/Userlist";
+import { getUser } from "../../utils/helpers";
 
 const Dashboard = () => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -220,16 +221,18 @@ const Dashboard = () => {
         >
           Announcement
         </Button>
-        <Button
-          className={`mb-2 ${
-            activePage === "Userlist"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-700"
-          }`}
-          onPress={() => setActivePage("Userlist")}
-        >
-          User Management
-        </Button>
+        {getUser() && getUser().role === "superadmin" && (
+          <Button
+            className={`mb-2 ${
+              activePage === "Userlist"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+            onPress={() => setActivePage("Userlist")}
+          >
+            User Management
+          </Button>
+        )}
       </div>
       <div className="flex-1 bg-white p-6 rounded-lg shadow-md">
         <div className="flex items-center justify-between mb-4">

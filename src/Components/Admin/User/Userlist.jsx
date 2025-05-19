@@ -54,8 +54,8 @@ function Userlist() {
   const [banDuration, setBanDuration] = useState("");
   const [banCustomDate, setBanCustomDate] = useState(null);
   const [banAttachment, setBanAttachment] = useState(null);
-  const [selectedRole, setSelectedRole] = useState(""); // Add this
-  const [currentUserRole, setCurrentUserRole] = useState(""); // Add this
+  const [selectedRole, setSelectedRole] = useState("");
+  const [currentUserRole, setCurrentUserRole] = useState("");
 
   function getRoleOptions(currentRole) {
     switch (currentRole) {
@@ -74,6 +74,7 @@ function Userlist() {
     try {
       const response = await apiClient.get("/user/all-users");
       setUsers(response.data.users);
+      toast.success("User Role Changed Successfully");
       console.log("Users fetched successfully:", response.data.users);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -102,7 +103,7 @@ function Userlist() {
     setRoleUserId(userId);
     const user = users.find((u) => u._id === userId);
     setCurrentUserRole(user?.role || "");
-    setSelectedRole(""); // Reset selected role
+    setSelectedRole("");
     setRoleModalOpen(true);
   };
 
@@ -207,6 +208,9 @@ function Userlist() {
           <TableColumn style={{ textAlign: "center" }}>
             Phone Number
           </TableColumn>
+          <TableColumn style={{ textAlign: "center" }}>
+            Role
+          </TableColumn>
           <TableColumn style={{ textAlign: "center" }}>Action</TableColumn>
         </TableHeader>
         <TableBody>
@@ -223,6 +227,9 @@ function Userlist() {
               )}
               <TableCell style={{ textAlign: "center" }}>
                 {user.email}
+              </TableCell>
+              <TableCell style={{ textAlign: "center" }}>
+                {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
               </TableCell>
               {!user.phoneNumber ? (
                 <TableCell style={{ textAlign: "center" }}>None</TableCell>
