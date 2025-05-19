@@ -67,7 +67,9 @@ export default function Header() {
               <DrawerHeader className="text-lg font-semibold">
                 MENU
               </DrawerHeader>
-              {user && user !== false && user.role === "admin" ? (
+              {user &&
+              user !== false &&
+              (user.role === "admin" || user.role === "superadmin") ? (
                 <Button
                   color="primary"
                   variant="light"

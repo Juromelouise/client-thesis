@@ -74,7 +74,6 @@ function Userlist() {
     try {
       const response = await apiClient.get("/user/all-users");
       setUsers(response.data.users);
-      toast.success("User Role Changed Successfully");
       console.log("Users fetched successfully:", response.data.users);
     } catch (error) {
       console.error("Error fetching users:", error);
