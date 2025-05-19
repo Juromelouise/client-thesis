@@ -7,6 +7,7 @@ import {
   TableCell,
   TableRow,
   TableColumn,
+  Tooltip,
   Button,
   Select,
   SelectItem,
@@ -46,11 +47,28 @@ function Userlist() {
 
   // Modal state
   const [banModalOpen, setBanModalOpen] = useState(false);
+  const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [banUserId, setBanUserId] = useState(null);
+  const [roleUserId, setRoleUserId] = useState(null);
   const [banReason, setBanReason] = useState("");
   const [banDuration, setBanDuration] = useState("");
   const [banCustomDate, setBanCustomDate] = useState(null);
   const [banAttachment, setBanAttachment] = useState(null);
+  const [selectedRole, setSelectedRole] = useState(""); // Add this
+  const [currentUserRole, setCurrentUserRole] = useState(""); // Add this
+
+  function getRoleOptions(currentRole) {
+    switch (currentRole) {
+      case "user":
+        return ["admin", "superadmin"];
+      case "admin":
+        return ["user", "superadmin"];
+      case "superadmin":
+        return ["admin", "user"];
+      default:
+        return [];
+    }
+  }
 
   const fetchUsers = async () => {
     try {
@@ -78,6 +96,18 @@ function Userlist() {
 
   const closeBanModal = () => {
     setBanModalOpen(false);
+  };
+
+  const openRoleModal = (userId) => {
+    setRoleUserId(userId);
+    const user = users.find((u) => u._id === userId);
+    setCurrentUserRole(user?.role || "");
+    setSelectedRole(""); // Reset selected role
+    setRoleModalOpen(true);
+  };
+
+  const closeRoleModal = () => {
+    setRoleModalOpen(false);
   };
 
   const handleBanSubmit = async (e) => {
@@ -131,6 +161,25 @@ function Userlist() {
     } catch (error) {
       console.error("Error unbanning user:", error);
       toast.error("Error unbanning user");
+    }
+  };
+
+  const handleRoleChangeSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedRole) {
+      toast.error("Please select a new role.");
+      return;
+    }
+    try {
+      await apiClient.put(`/user/change-role/${roleUserId}`, {
+        role: selectedRole,
+      });
+      fetchUsers();
+      toast.success("User role updated successfully");
+      closeRoleModal();
+    } catch (error) {
+      console.error("Error changing user role:", error);
+      toast.error("Error changing user role");
     }
   };
 
@@ -192,19 +241,41 @@ function Userlist() {
                   }}
                 >
                   {user.deleted === false ? (
-                    <Icon
-                      icon={banIcon}
-                      style={{ color: "red", cursor: "pointer" }}
-                      title="Ban User"
-                      onClick={() => openBanModal(user._id)}
-                    />
+                    <>
+                      <Tooltip content="Change user roles" placement="top">
+                        <span>
+                          <Icon
+                            icon="oui:app-users-roles"
+                            width="20"
+                            height="20"
+                            style={{ color: "gray", cursor: "pointer" }}
+                            title="Change user roles"
+                            onClick={() => openRoleModal(user._id)}
+                          />
+                        </span>
+                      </Tooltip>
+                      <Tooltip content="Ban user" placement="top">
+                        <span>
+                          <Icon
+                            icon={banIcon}
+                            style={{ color: "red", cursor: "pointer" }}
+                            title="Ban user"
+                            onClick={() => openBanModal(user._id)}
+                          />
+                        </span>
+                      </Tooltip>
+                    </>
                   ) : (
-                    <Icon
-                      icon={restoreIcon}
-                      style={{ color: "green", cursor: "pointer" }}
-                      title="Restore User"
-                      onClick={() => unbanUser(user._id)}
-                    />
+                    <Tooltip content="Restore User" placement="top">
+                      <span>
+                        <Icon
+                          icon={restoreIcon}
+                          style={{ color: "green", cursor: "pointer" }}
+                          title="Restore User"
+                          onClick={() => unbanUser(user._id)}
+                        />
+                      </span>
+                    </Tooltip>
                   )}
                 </div>
               </TableCell>
@@ -276,6 +347,48 @@ function Userlist() {
               </Button>
               <Button color="primary" type="submit">
                 Ban User
+              </Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal>
+
+      {/* Change User Role Modal */}
+      <Modal
+        isOpen={roleModalOpen}
+        onClose={closeRoleModal}
+        size="md"
+        placement="center"
+        backdrop="opaque"
+      >
+        <ModalContent>
+          <form onSubmit={handleRoleChangeSubmit}>
+            <ModalHeader>
+              <h2 className="text-lg font-bold">Change User Role</h2>
+            </ModalHeader>
+            <ModalBody>
+              <div className="flex flex-col gap-4">
+                <Select
+                  label="Change Role"
+                  isRequired
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  placeholder="Select new role"
+                >
+                  {getRoleOptions(currentUserRole).map((role) => (
+                    <SelectItem key={role} value={role}>
+                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="danger" variant="light" onClick={closeRoleModal}>
+                Cancel
+              </Button>
+              <Button color="primary" type="submit">
+                Change Role
               </Button>
             </ModalFooter>
           </form>
