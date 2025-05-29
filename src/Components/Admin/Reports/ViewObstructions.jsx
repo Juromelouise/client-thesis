@@ -8,17 +8,22 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  DropdownMenu,
   ModalFooter,
   useDisclosure,
-  DropdownItem,
-  DropdownTrigger,
-  Dropdown,
-  Textarea,
 } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
+import Select from "react-select";
 import apiClient from "../../../utils/apiClient";
 import { toast } from "react-toastify";
+
+const violationsList = [
+  { value: "Overnight parking", label: "Overnight parking" },
+  { value: "Hazard parking", label: "Hazard parking" },
+  { value: "Illegal parking", label: "Illegal parking" },
+  { value: "Towing Zone", label: "Towing Zone" },
+  { value: "Loading and Unloading", label: "Loading and Unloading" },
+  { value: "Illegal Sidewalk Use", label: "Illegal Sidewalk Use" },
+];
 
 function ViewObstruction() {
   const { id } = useParams();
@@ -27,19 +32,32 @@ function ViewObstruction() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("");
   const [statusChangeCount, setStatusChangeCount] = useState(0);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isReasonModalOpen,
+    onOpen: onReasonModalOpen,
+    onClose: onReasonModalClose,
+  } = useDisclosure();
   const [newStatus, setNewStatus] = useState("");
-  const [violations, setViolations] = useState("");
-  const [isDisabled, setIsDisabled] = useState(true);
+  const [reason, setReason] = useState("");
+  const [selectedViolations, setSelectedViolations] = useState([]);
 
   useEffect(() => {
     const fetchReport = async () => {
       try {
+        setLoading(true);
         const { data } = await apiClient.get(`/report/admin/obstruction/${id}`);
         setReport(data.data);
         setStatus(data.data.status);
         setStatusChangeCount(data.data.editableStatus);
-        setViolations(data.data.violations.join("\n"));
+        setSelectedViolations(
+          Array.isArray(data.data.violations)
+            ? data.data.violations
+                .map((type) =>
+                  violationsList.find((violation) => violation.label === type)
+                )
+                .filter(Boolean)
+            : []
+        );
       } catch (error) {
         console.error("Error fetching report:", error);
       } finally {
@@ -72,16 +90,18 @@ function ViewObstruction() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const handleStatusChange = async (newStatus) => {
+  const handleStatusChange = async (newStatus, reason) => {
     try {
       const { data } = await apiClient.put(
         `/report/admin/obstruction/status/${id}`,
         {
           status: newStatus,
+          reason: reason,
         }
       );
       setReport(data.report);
       setStatus(data.report.status);
+      setReason("");
       setStatusChangeCount(data.report.editableStatus);
       toast.success("Status updated successfully!");
     } catch (error) {
@@ -94,38 +114,32 @@ function ViewObstruction() {
 
   const handleStatusChangeClick = (newStatus) => {
     setNewStatus(newStatus);
-    onOpen();
+    onReasonModalOpen();
   };
 
   const confirmStatusChange = () => {
-    handleStatusChange(newStatus);
-    onClose();
-  };
-
-  const handleViolationChange = (value) => {
-    setViolations(value);
+    handleStatusChange(newStatus, reason);
+    onReasonModalClose();
   };
 
   const editViolations = () => {
-    if (!isDisabled) {
-      saveViolations();
-    }
-    setIsDisabled(!isDisabled);
+    saveViolations();
   };
 
   const saveViolations = async () => {
     try {
-      const updatedViolations = violations.split("\n");
+      setLoading(true);
+      const updatedViolations = selectedViolations.map((v) => v.label);
       const { data } = await apiClient.put(
         `/report/admin/obstruction/violations/${report._id}`,
         {
           violations: updatedViolations,
         }
       );
-
-      setViolations(data.report.violations.join("\n"));
+      setLoading(false);
       toast.success("Violations updated successfully!");
     } catch (error) {
+      setLoading(false);
       console.error("Error updating violations:", error);
       toast.error("Failed to update violations.");
     }
@@ -152,20 +166,29 @@ function ViewObstruction() {
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Violations:</p>
             <div className="flex flex-wrap items-center">
-              <Textarea
-                isDisabled={isDisabled}
-                value={violations}
-                onChange={(e) => handleViolationChange(e.target.value)}
-                className="mr-2 mb-2 text-sm py-1 px-2 w-full"
+              <Select
+                isMulti
+                options={violationsList}
+                value={selectedViolations}
+                onChange={setSelectedViolations}
+                className="w-full max-w-md"
+                classNamePrefix="react-select"
+                isDisabled={
+                  status === "Resolved" ||
+                  status === "Approved" ||
+                  status === "Disapproved"
+                }
               />
-              {status && status === "Resolved" ? (
+              {(status && status === "Resolved") ||
+              status === "Approved" ||
+              status === "Disapproved" ? (
                 <></>
               ) : (
                 <Button
                   className="ml-4 bg-blue-500 hover:bg-blue-600 text-white"
                   onPress={editViolations}
                 >
-                  {isDisabled ? "Edit Violations" : "Save Violations"}
+                  Save Violations
                 </Button>
               )}
             </div>
@@ -186,7 +209,7 @@ function ViewObstruction() {
                   key={index}
                   src={image.url}
                   alt={`Report Image ${index + 1}`}
-                  className="w-full h-48 object-cover rounded-lg"
+                  className="w-full h-48 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105"
                 />
               ))}
             </div>
@@ -200,7 +223,7 @@ function ViewObstruction() {
                     key={index}
                     src={image.url}
                     alt={`Confirmation Image ${index + 1}`}
-                    className="w-full h-48 object-cover rounded-lg"
+                    className="w-full h-48 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105"
                   />
                 ))}
               </div>
@@ -208,87 +231,60 @@ function ViewObstruction() {
           )}
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Reporter:</p>
-            <p className="text-gray-700">
-              {report.reporter?.firstName} {report.reporter?.lastName}
+            <div className="text-gray-700">
+              <p className="mb-1">
+                <span className="font-semibold">Name:</span>{" "}
+                {report.reporter?.firstName} {report.reporter?.lastName}
+              </p>
+              <p className="mb-1">
+                <span className="font-semibold">Email:</span>{" "}
+                {report.reporter?.email}
+              </p>
+            </div>
+          </div>
+          <div className="mb-6">
+            <p className={`text-lg font-bold mb-1 ${status === "Approved" ? "" : "text-red-500"}`}>
+              Status:{" "}
+              <span className={status === "Approved" ? "text-green-500" : "text-red-500"}>
+                {status}
+              </span>
             </p>
-            <p className="text-gray-700">{report.reporter?.email}</p>
-          </div>
-          <div className="mb-6">
-            <p className="text-lg font-bold mb-1">Status Change Count:</p>
-            <p className="text-gray-700">{statusChangeCount}</p>
-          </div>
-          <div className="mb-6">
-            <p className="text-lg font-bold mb-1">Status:</p>
-            <Dropdown>
-              <DropdownTrigger>
+            <div className="flex space-x-2">
+              {status !== "Approved" && (
                 <Button
-                  className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg transition-colors duration-300 hover:from-pink-600 hover:to-yellow-600"
+                  className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
                   radius="full"
+                  onPress={() => handleStatusChangeClick("Approved")}
                 >
-                  {status}
+                  Approved
                 </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                {status && status === "Pending" && (
-                  <>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Approved")}
-                    >
-                      Approved
-                    </DropdownItem>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Disapproved")}
-                    >
-                      Disapproved
-                    </DropdownItem>
-                  </>
-                )}
-                {status && status === "Approved" && (
-                  <>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Pending")}
-                    >
-                      Pending
-                    </DropdownItem>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Disapproved")}
-                    >
-                      Disapproved
-                    </DropdownItem>
-                  </>
-                )}
-                {status && status === "Disapproved" && (
-                  <>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Pending")}
-                    >
-                      Pending
-                    </DropdownItem>
-                    <DropdownItem
-                      onPress={() => handleStatusChangeClick("Approved")}
-                    >
-                      Approved
-                    </DropdownItem>
-                  </>
-                )}
-              </DropdownMenu>
-            </Dropdown>
+              )}
+              {status !== "Disapproved" && (
+                <Button
+                  className="bg-red-500 text-white shadow-lg transition-colors duration-300 hover:bg-red-600"
+                  radius="full"
+                  onPress={() => handleStatusChangeClick("Disapproved")}
+                >
+                  Disapproved
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </Card>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      {/* Confirm Status Change Modal */}
+      <Modal isOpen={isReasonModalOpen} onClose={onReasonModalClose}>
         <ModalContent>
-          <ModalHeader>Confirm Status Change</ModalHeader>
+          <ModalHeader>Reason for Status Change</ModalHeader>
           <ModalBody>
-            <p>
-              Are you sure you want to change the status to{" "}
-              <strong>{newStatus}</strong>?
-            </p>
-            <p>
-              You have <strong>{3 - statusChangeCount}</strong> remaining status
-              changes.
-            </p>
+            <textarea
+              className="w-full p-2 border rounded"
+              rows="5"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Enter the reason for changing the status"
+            />
           </ModalBody>
           <ModalFooter>
             <Button
@@ -296,10 +292,10 @@ function ViewObstruction() {
               onPress={confirmStatusChange}
               color="primary"
             >
-              Yes
+              Submit
             </Button>
-            <Button onPress={onClose} variant="light">
-              No
+            <Button onPress={onReasonModalClose} variant="light">
+              Cancel
             </Button>
           </ModalFooter>
         </ModalContent>

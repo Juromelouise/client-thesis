@@ -214,7 +214,9 @@ function ViewReport() {
             {!report?.plateNumber?.offense ? (
               <p className="text-gray-700">No offense</p>
             ) : (
-              <p className="text-gray-700">{report?.plateNumber?.offense.offense}</p>
+              <p className="text-gray-700">
+                {report?.plateNumber?.offense.offense}
+              </p>
             )}
           </div>
           <div className="mb-6">
@@ -277,17 +279,21 @@ function ViewReport() {
             </div>
           </div>
           <div className="mb-6">
-            <p className="text-lg font-bold mb-1">Status: {status}</p>
+            <p
+              className={`text-lg font-bold mb-1 ${
+                status === "Approved" ? "" : "text-red-500"
+              }`}
+            >
+              Status:{" "}
+              <span
+                className={
+                  status === "Approved" ? "text-green-500" : "text-red-500"
+                }
+              >
+                {status}
+              </span>
+            </p>
             <div className="flex space-x-2">
-              {status !== "Pending" && (
-                <Button
-                  className="bg-yellow-500 text-white shadow-lg transition-colors duration-300 hover:bg-yellow-600"
-                  radius="full"
-                  onPress={() => handleStatusChangeClick("Pending")}
-                >
-                  Pending
-                </Button>
-              )}
               {status !== "Approved" && (
                 <Button
                   className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
