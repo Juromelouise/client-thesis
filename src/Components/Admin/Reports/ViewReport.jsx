@@ -294,7 +294,16 @@ function ViewReport() {
               </span>
             </p>
             <div className="flex space-x-2">
-              {status !== "Approved" && (
+              {status === "Pending" && (
+                <Button
+                  className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
+                  radius="full"
+                  onPress={() => handleStatusChangeClick("Under Investigation")}
+                >
+                  Under Investigation
+                </Button>
+              )}
+              {status === "Under Investigation" && (
                 <Button
                   className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
                   radius="full"
@@ -303,7 +312,7 @@ function ViewReport() {
                   Approved
                 </Button>
               )}
-              {status !== "Disapproved" && (
+              {status === "Under Investigation" && (
                 <Button
                   className="bg-red-500 text-white shadow-lg transition-colors duration-300 hover:bg-red-600"
                   radius="full"
