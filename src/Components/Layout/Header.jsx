@@ -1,8 +1,6 @@
 import {
   Navbar,
   NavbarBrand,
-  NavbarContent,
-  NavbarItem,
   Drawer,
   DrawerContent,
   DrawerHeader,
@@ -18,8 +16,11 @@ import {
   HiOutlineUserCircle,
   HiOutlineLogin,
   HiOutlineLogout,
-  HiOutlineChevronUp,
-  HiOutlineChevronDown,
+  HiHome,
+  HiInformationCircle,
+  HiViewGrid,
+  HiOutlineViewGrid,
+  HiAcademicCap,
 } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -28,12 +29,7 @@ import { getUser, logout } from "../../utils/helpers";
 export default function Header() {
   const [user, setUser] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const navigate = useNavigate();
-
-  const handleOpen = () => {
-    onOpen();
-  };
 
   useEffect(() => {
     const updateUser = () => setUser(getUser());
@@ -49,18 +45,13 @@ export default function Header() {
     });
   };
 
-  const toggleHeaderVisibility = () => {
-    setIsHeaderVisible(!isHeaderVisible);
-  };
-
   return (
     <>
       <Navbar
-        className={`fixed top-0 left-0 w-full px-4 shadow-md bg-white z-50 transition-all duration-500 ${
-          isHeaderVisible ? "h-16" : "h-8"
-        }`}
+        className="fixed top-0 left-0 w-full h-16 px-0 shadow bg-white z-50 border-b border-gray-200"
         maxWidth="fluid"
       >
+        {/* Drawer for mobile */}
         <Drawer isOpen={isOpen} size="xs" onClose={onClose}>
           <DrawerContent>
             <div className="flex flex-col gap-4 p-4">
@@ -68,33 +59,21 @@ export default function Header() {
                 MENU
               </DrawerHeader>
               {user &&
-              user !== false &&
-              (user.role === "admin" || user.role === "superadmin") ? (
-                <Button
-                  color="primary"
-                  variant="light"
-                  className="w-full text-left"
-                  onPress={() => {
-                    navigate("/dashboard");
-                    onClose();
-                  }}
-                >
-                  Dashboard
-                </Button>
-              ) : (
-                <></>
-              )}
-              <Button
-                color="primary"
-                variant="light"
-                className="w-full text-left"
-                onPress={() => {
-                  navigate("/about");
-                  onClose();
-                }}
-              >
-                About
-              </Button>
+                user !== false &&
+                (user.role === "admin" || user.role === "superadmin") && (
+                  <Button
+                    color="primary"
+                    variant="light"
+                    className="w-full text-left"
+                    onPress={() => {
+                      navigate("/dashboard");
+                      onClose();
+                    }}
+                  >
+                    <HiOutlineViewGrid className="inline mr-2" />
+                    Dashboard
+                  </Button>
+                )}
               <Button
                 color="primary"
                 variant="light"
@@ -104,6 +83,7 @@ export default function Header() {
                   onClose();
                 }}
               >
+                <HiHome className="inline mr-2" />
                 Home
               </Button>
               <Button
@@ -115,103 +95,163 @@ export default function Header() {
                   onClose();
                 }}
               >
+                <HiAcademicCap className="inline mr-2" /> {/* Changed icon */}
                 FYP
+              </Button>
+              <Button
+                color="primary"
+                variant="light"
+                className="w-full text-left"
+                onPress={() => {
+                  navigate("/about");
+                  onClose();
+                }}
+              >
+                <HiInformationCircle className="inline mr-2" />
+                About
               </Button>
             </div>
           </DrawerContent>
         </Drawer>
-        <div className="flex items-center justify-between w-full">
-          {/* Brand */}
-          <Link to="/">
-            <NavbarBrand>
-              <span
-                className={`text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500 ${
-                  isHeaderVisible ? "" : "text-sm"
-                }`}
-              >
-                {isHeaderVisible ? "BOVO" : ""}
-              </span>
-            </NavbarBrand>
-          </Link>
-          {/* Spacer */}
-          {isHeaderVisible && (
-            <NavbarContent justify="end" className="gap-4">
-              {/* Menu Icon */}
-              <NavbarItem>
-                <HiMenu
-                  className="text-2xl text-gray-600 cursor-pointer"
-                  onClick={handleOpen}
-                />
-              </NavbarItem>
 
-              {/* User Icon */}
-              {user && user !== false ? (
-                <Dropdown>
-                  <DropdownTrigger>
-                    <Button
-                      color="primary"
-                      variant="light"
-                      className="flex items-center gap-2"
-                    >
-                      <HiOutlineUserCircle className="text-2xl text-gray-600 cursor-pointer" />
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu>
-                    <DropdownItem onPress={() => navigate("/profile")}>
-                      <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between w-full h-16 px-4">
+          {/* Left: Brand */}
+          <div className="flex items-center gap-2">
+            <Link to="/">
+              <NavbarBrand>
+                {/* Updated: Use provided logo image */}
+                <span className="flex items-center select-none">
+                  <img
+                    src="/bovo_logo.png"
+                    alt="BOVO App Logo"
+                    className="w-10 h-10 mr-2 rounded-full bg-white border border-gray-200 shadow"
+                    style={{ objectFit: "cover" }}
+                  />
+                  <span
+                    className="text-2xl font-extrabold tracking-tight text-gray-900 ml-1"
+                    style={{ letterSpacing: "0.04em" }}
+                  >
+                    BOVO
+                  </span>
+                </span>
+              </NavbarBrand>
+            </Link>
+          </div>
+          {/* Center: Navigation (Facebook-like icons) */}
+          <div className="hidden md:flex items-center gap-8">
+            {user &&
+              user !== false &&
+              (user.role === "admin" || user.role === "superadmin") && (
+                <Button
+                  isIconOnly
+                  variant="light"
+                  aria-label="Dashboard"
+                  onPress={() => navigate("/dashboard")}
+                  className="rounded-full hover:bg-blue-100"
+                >
+                  <HiOutlineViewGrid className="text-2xl text-blue-600" />
+                </Button>
+              )}
+            <Button
+              isIconOnly
+              variant="light"
+              aria-label="Home"
+              onPress={() => navigate("/")}
+              className="rounded-full hover:bg-blue-100"
+            >
+              <HiHome className="text-2xl text-blue-600" />
+            </Button>
+            <Button
+              isIconOnly
+              variant="light"
+              aria-label="FYP"
+              onPress={() => navigate("/fyp")}
+              className="rounded-full hover:bg-blue-100"
+            >
+              <HiAcademicCap className="text-2xl text-blue-600" />{" "}
+              {/* Changed icon */}
+            </Button>
+            <Button
+              isIconOnly
+              variant="light"
+              aria-label="About"
+              onPress={() => navigate("/about")}
+              className="rounded-full hover:bg-blue-100"
+            >
+              <HiInformationCircle className="text-2xl text-blue-600" />
+            </Button>
+          </div>
+
+          {/* Right: User/Profile/Menu */}
+          <div className="flex items-center gap-2">
+            {/* Mobile Menu Icon */}
+            <div className="md:hidden">
+              <Button
+                isIconOnly
+                variant="light"
+                aria-label="Menu"
+                onPress={onOpen}
+                className="rounded-full"
+              >
+                <HiMenu className="text-2xl text-blue-600" />
+              </Button>
+            </div>
+            {/* User/Profile */}
+            {user && user !== false ? (
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button isIconOnly variant="light" className="rounded-full">
+                    {user.avatar?.url ? (
+                      <img
+                        src={user.avatar.url}
+                        alt="Profile"
+                        className="w-8 h-8 rounded-full object-cover border-2 border-blue-500"
+                      />
+                    ) : (
+                      <HiOutlineUserCircle className="text-2xl text-blue-600" />
+                    )}
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu>
+                  <DropdownItem onPress={() => navigate("/profile")}>
+                    <div className="flex items-center gap-2">
+                      {user.avatar?.url ? (
                         <img
                           src={user.avatar.url}
                           alt="Profile"
                           className="w-8 h-8 rounded-full"
                         />
-                        <div>
-                          <p className="text-sm font-semibold">{user.name}</p>
-                          <p className="text-xs text-gray-600">{user.email}</p>
-                        </div>
+                      ) : (
+                        <HiOutlineUserCircle className="text-2xl text-blue-600" />
+                      )}
+                      <div>
+                        <p className="text-sm font-semibold">{user.name}</p>
+                        <p className="text-xs text-gray-600">{user.email}</p>
                       </div>
-                    </DropdownItem>
-                    <DropdownItem onPress={handleLogout}>
-                      <HiOutlineLogout className="text-xl mr-2" />
-                      Logout
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
-              ) : (
-                <Button
-                  color="primary"
-                  variant="solid"
-                  className="flex items-center gap-2 text-white transition-colors duration-300 hover:bg-blue-600"
-                  onPress={() => navigate("/login")}
-                >
-                  <HiOutlineLogin className="text-xl" />
-                  Sign In
-                </Button>
-              )}
-            </NavbarContent>
-          )}
-          {/* Toggle Header Visibility Icon */}
-          <NavbarItem>
-            <Button
-              className={`flex items-center gap-2 transition-all duration-500 ${
-                isHeaderVisible ? "text-2xl" : "text-xl"
-              } bg-white bg-opacity-0`}
-              onPress={toggleHeaderVisibility}
-            >
-              {isHeaderVisible ? (
-                <HiOutlineChevronUp className="text-gray-600 cursor-pointer" />
-              ) : (
-                <HiOutlineChevronDown className="text-gray-600 cursor-pointer" />
-              )}
-            </Button>
-          </NavbarItem>
+                    </div>
+                  </DropdownItem>
+                  <DropdownItem onPress={handleLogout}>
+                    <HiOutlineLogout className="text-xl mr-2" />
+                    Logout
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            ) : (
+              <Button
+                color="primary"
+                variant="solid"
+                className="flex items-center gap-2 text-white transition-colors duration-300 hover:bg-blue-600 rounded-full"
+                onPress={() => navigate("/login")}
+              >
+                <HiOutlineLogin className="text-xl" />
+                Sign In
+              </Button>
+            )}
+          </div>
         </div>
       </Navbar>
       {/* Spacer to prevent content from being hidden behind the navbar */}
-      <div
-        className={`transition-all duration-500 ${
-          isHeaderVisible ? "h-16" : "h-8"
-        }`}
-      ></div>
+      <div className="h-16"></div>
     </>
   );
 }
