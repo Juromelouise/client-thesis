@@ -7,6 +7,7 @@ import data from "@emoji-mart/data";
 import { Filter } from "bad-words";
 import badWords from "filipino-badwords-list";
 import { filterText } from "../../utils/filterText";
+import { toast } from "react-toastify";
 
 function SpecificReport() {
   const filter = new Filter({ list: badWords.array });
@@ -25,6 +26,7 @@ function SpecificReport() {
         setComments(response.data.report.comment || []);
       } catch (error) {
         console.error("Error fetching report:", error);
+        toast.error(error.response?.data?.message || "Failed to fetch report");
       } finally {
         setLoading(false);
       }
