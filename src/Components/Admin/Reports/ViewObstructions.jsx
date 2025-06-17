@@ -15,6 +15,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Select from "react-select";
 import apiClient from "../../../utils/apiClient";
 import { toast } from "react-toastify";
+import { PhotoView } from "react-photo-view";
 
 const violationsList = [
   { value: "Overnight parking", label: "Overnight parking" },
@@ -38,7 +39,7 @@ function ViewObstruction() {
     onClose: onReasonModalClose,
   } = useDisclosure();
   const [newStatus, setNewStatus] = useState("");
-  const [reason, setReason] = useState("");
+  const [reason, setReason] = useState(null);
   const [selectedViolations, setSelectedViolations] = useState([]);
 
   useEffect(() => {
@@ -114,7 +115,11 @@ function ViewObstruction() {
 
   const handleStatusChangeClick = (newStatus) => {
     setNewStatus(newStatus);
-    onReasonModalOpen();
+    if (status === "Ongoing Investigation") {
+      onReasonModalOpen();
+    }else {
+      handleStatusChange(newStatus, reason);
+    }
   };
 
   const confirmStatusChange = () => {
@@ -205,12 +210,13 @@ function ViewObstruction() {
             <p className="text-lg font-bold mb-1">Images:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {report.images.map((image, index) => (
-                <img
-                  key={index}
-                  src={image.url}
-                  alt={`Report Image ${index + 1}`}
-                  className="w-full h-48 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105"
-                />
+                <PhotoView key={index} src={image.url}>
+                  <img
+                    src={image.url}
+                    alt={`Report Image ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105"
+                  />
+                </PhotoView>
               ))}
             </div>
           </div>
@@ -219,12 +225,13 @@ function ViewObstruction() {
               <p className="text-lg font-bold mb-1">Confirmation Images:</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {report.confirmationImages.map((image, index) => (
+                  <PhotoView key={index} src={image.url}>
                   <img
-                    key={index}
                     src={image.url}
-                    alt={`Confirmation Image ${index + 1}`}
+                    alt={`Report Image ${index + 1}`}
                     className="w-full h-48 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105"
                   />
+                </PhotoView>
                 ))}
               </div>
             </div>
@@ -243,29 +250,59 @@ function ViewObstruction() {
             </div>
           </div>
           <div className="mb-6">
-            <p className={`text-lg font-bold mb-1 ${status === "Approved" ? "" : "text-red-500"}`}>
+            <p
+              className={`text-lg font-bold mb-1 ${
+                status === "Approved" ? "" : "text-red-500"
+              }`}
+            >
               Status:{" "}
-              <span className={status === "Approved" ? "text-green-500" : "text-red-500"}>
+              <span
+                className={
+                  status === "Approved" ? "text-green-500" : "text-red-500"
+                }
+              >
                 {status}
               </span>
             </p>
             <div className="flex space-x-2">
-              {status !== "Approved" && (
+              {status === "Pending" && (
+                <Button
+                  className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
+                  radius="full"
+                  onPress={() =>
+                    handleStatusChangeClick("Reviewed for Proper Action")
+                  }
+                >
+                  Reviewed for Proper Action
+                </Button>
+              )}
+              {status === "Reviewed for Proper Action" && (
+                <Button
+                  className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
+                  radius="full"
+                  onPress={() =>
+                    handleStatusChangeClick("Ongoing Investigation")
+                  }
+                >
+                  Ongoing Investigation
+                </Button>
+              )}
+              {status === "Ongoing Investigation" && (
                 <Button
                   className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
                   radius="full"
                   onPress={() => handleStatusChangeClick("Approved")}
                 >
-                  Approved
+                  Approve
                 </Button>
               )}
-              {status !== "Disapproved" && (
+              {status === "Ongoing Investigation" && (
                 <Button
                   className="bg-red-500 text-white shadow-lg transition-colors duration-300 hover:bg-red-600"
                   radius="full"
-                  onPress={() => handleStatusChangeClick("Disapproved")}
+                  onPress={() => handleStatusChangeClick("Declined")}
                 >
-                  Disapproved
+                  Decline
                 </Button>
               )}
             </div>

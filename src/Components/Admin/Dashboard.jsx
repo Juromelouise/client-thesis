@@ -41,7 +41,7 @@ const Dashboard = () => {
         return <Charts />;
       case "Illegal parking":
         return <ReportList filterStatus={filterStatus} />;
-      case "Obstruction":
+      case "Complaints":
         return <ObstructionList filterStatus={filterStatus} />;
       case "Plate Number":
         return <PlateNumberList />;
@@ -173,13 +173,13 @@ const Dashboard = () => {
         </Button>
         <Button
           className={`mb-2 ${
-            activePage === "Obstruction"
+            activePage === "Complaints"
               ? "bg-blue-500 text-white"
               : "bg-gray-200 text-gray-700"
           }`}
-          onPress={() => setActivePage("Obstruction")}
+          onPress={() => setActivePage("Complaints")}
         >
-          Obstruction
+          Complaints
         </Button>
         <Button
           className={`mb-2 ${
@@ -238,7 +238,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold">{activePage}</h2>
           {(activePage === "Illegal parking" ||
-            activePage === "Obstruction") && (
+            activePage === "Complaints") && (
             <Dropdown>
               <DropdownTrigger>
                 <Button className="flex items-center gap-2 bg-gray-200 text-gray-700 transition-colors duration-300 hover:bg-gray-300">
@@ -250,11 +250,17 @@ const Dashboard = () => {
                 <DropdownItem onClick={() => setFilterStatus("Pending")}>
                   Pending
                 </DropdownItem>
+                <DropdownItem onClick={() => setFilterStatus("Reviewed for Proper Action")}>
+                  Reviewed for Proper Action
+                </DropdownItem>
+                <DropdownItem onClick={() => setFilterStatus("Ongoing Investigation")}>
+                  Ongoing Investigation
+                </DropdownItem>
                 <DropdownItem onClick={() => setFilterStatus("Approved")}>
                   Approved
                 </DropdownItem>
-                <DropdownItem onClick={() => setFilterStatus("Disapproved")}>
-                  Disapproved
+                <DropdownItem onClick={() => setFilterStatus("Declined")}>
+                  Declined
                 </DropdownItem>
                 <DropdownItem onClick={() => setFilterStatus("Resolved")}>
                   Resolved

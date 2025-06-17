@@ -298,12 +298,21 @@ function ViewReport() {
                 <Button
                   className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
                   radius="full"
-                  onPress={() => handleStatusChangeClick("Under Investigation")}
+                  onPress={() => handleStatusChangeClick("Reviewed for Proper Action")}
                 >
-                  Under Investigation
+                 Reviewed for Proper Action
                 </Button>
               )}
-              {status === "Under Investigation" && (
+              {status === "Reviewed for Proper Action" && (
+                <Button
+                  className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
+                  radius="full"
+                  onPress={() => handleStatusChangeClick("Ongoing Investigation")}
+                >
+                  Ongoing Investigation
+                </Button>
+              )}
+                {status === "Ongoing Investigation" && (
                 <Button
                   className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
                   radius="full"
@@ -312,13 +321,13 @@ function ViewReport() {
                   Approved
                 </Button>
               )}
-              {status === "Under Investigation" && (
+              {status === "Ongoing Investigation" && (
                 <Button
                   className="bg-red-500 text-white shadow-lg transition-colors duration-300 hover:bg-red-600"
                   radius="full"
-                  onPress={() => handleStatusChangeClick("Disapproved")}
+                  onPress={() => handleStatusChangeClick("Decline")}
                 >
-                  Disapproved
+                  Decline
                 </Button>
               )}
             </div>
