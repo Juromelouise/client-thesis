@@ -39,8 +39,8 @@ const Dashboard = () => {
     switch (activePage) {
       case "Charts":
         return <Charts />;
-      case "Illegal parking":
-        return <ReportList filterStatus={filterStatus} />;
+      // case "Illegal parking":
+      //   return <ReportList filterStatus={filterStatus} />;
       case "Complaints":
         return <ObstructionList filterStatus={filterStatus} />;
       case "Plate Number":
@@ -161,7 +161,7 @@ const Dashboard = () => {
         >
           Charts
         </Button>
-        <Button
+        {/* <Button
           className={`mb-2 ${
             activePage === "Illegal parking"
               ? "bg-blue-500 text-white"
@@ -170,7 +170,7 @@ const Dashboard = () => {
           onPress={() => setActivePage("Illegal parking")}
         >
           Illegal parking
-        </Button>
+        </Button> */}
         <Button
           className={`mb-2 ${
             activePage === "Complaints"
@@ -237,8 +237,8 @@ const Dashboard = () => {
       <div className="flex-1 bg-white p-6 rounded-lg shadow-md">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold">{activePage}</h2>
-          {(activePage === "Illegal parking" ||
-            activePage === "Complaints") && (
+          {/* {(activePage === "Illegal parking" || */}
+            {(activePage === "Complaints") && (
             <Dropdown>
               <DropdownTrigger>
                 <Button className="flex items-center gap-2 bg-gray-200 text-gray-700 transition-colors duration-300 hover:bg-gray-300">

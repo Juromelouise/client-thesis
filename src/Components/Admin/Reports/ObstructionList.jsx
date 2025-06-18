@@ -20,14 +20,18 @@ const ObstructionList = ({ filterStatus }) => {
 
   const list = useAsyncList({
     async load({ signal }) {
-      const res = await apiClient.get(`/report/admin/obstruction`, { signal });
+      const res = await apiClient.get(`/report/admin/report/obstruction`, {
+        signal,
+      });
+      console.log("Obstruction List Data:", res.data.data);
       setIsLoading(false);
-      return { items: res.data.obstructions };
+      return { items: res.data.data };
     },
     async sort({ items, sortDescriptor }) {
       return {
         items: items.sort((a, b) => {
-          let cmp = a[sortDescriptor.column] < b[sortDescriptor.column] ? -1 : 1;
+          let cmp =
+            a[sortDescriptor.column] < b[sortDescriptor.column] ? -1 : 1;
           if (sortDescriptor.direction === "descending") {
             cmp *= -1;
           }
@@ -68,16 +72,33 @@ const ObstructionList = ({ filterStatus }) => {
           onSortChange={handleSortChange}
         >
           <TableHeader>
-            <TableColumn key="_id" allowsSorting className="text-center w-1/12">
+            <TableColumn
+              key="_id"
+              allowsSorting
+              className="text-center w-1/12"
+              onClick={() => list.sort("id")}
+            >
               ID
             </TableColumn>
-            <TableColumn key="location" allowsSorting className="text-center w-3/12">
+            <TableColumn
+              key="location"
+              allowsSorting
+              className="text-center w-3/12"
+            >
               Location
             </TableColumn>
-            <TableColumn key="violations" allowsSorting className="text-center w-3/12">
+            <TableColumn
+              key="violations"
+              allowsSorting
+              className="text-center w-3/12"
+            >
               Violations
             </TableColumn>
-            <TableColumn key="createdAt" allowsSorting className="text-center w-2/12">
+            <TableColumn
+              key="createdAt"
+              allowsSorting
+              className="text-center w-2/12"
+            >
               Date
             </TableColumn>
             <TableColumn className="text-center w-3/12">Actions</TableColumn>
@@ -91,18 +112,40 @@ const ObstructionList = ({ filterStatus }) => {
               <TableRow key={item._id}>
                 <TableCell className="text-center">{item?._id}</TableCell>
                 <TableCell className="text-center">{item?.location}</TableCell>
-                <TableCell className="text-center">{item?.violations?.join(", ")}</TableCell>
-                <TableCell className="text-center">{formatDate(item?.createdAt)}</TableCell>
                 <TableCell className="text-center">
-                  <Button
-                    auto
-                    flat
-                    color="primary"
-                    className="mr-2"
-                    onPress={() => navigate(`/single/obstruction/${item._id}`)}
-                  >
-                    View
-                  </Button>
+                  {item?.violations?.join(", ")}
+                </TableCell>
+                <TableCell className="text-center">
+                  {formatDate(item?.createdAt)}
+                </TableCell>
+                <TableCell className="text-center">
+                  {!item.plateNumber ? (
+                    <>
+                      <Button
+                        auto
+                        flat
+                        color="primary"
+                        className="mr-2"
+                        onPress={() =>
+                          navigate(`/single/obstruction/${item._id}`)
+                        }
+                      >
+                        View
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        auto
+                        flat
+                        color="primary"
+                        className="mr-2"
+                        onPress={() => navigate(`/single/report/${item._id}`)}
+                      >
+                        View
+                      </Button>
+                    </>
+                  )}
                   {/* <Button auto flat color="error">
                     Delete
                   </Button> */}
