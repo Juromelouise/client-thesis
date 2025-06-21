@@ -120,7 +120,7 @@ const ReportCard = ({
       <CardBody className="p-0">
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
           <div className="flex items-center gap-3">
-            {getUser() && getUser().role === "admin" ? (
+            {getUser() && getUser().role === "admin" || getUser().role === "superadmin"? (
               <>
                 <Avatar className="w-11 h-11" src={avatar} />
                 <div>
