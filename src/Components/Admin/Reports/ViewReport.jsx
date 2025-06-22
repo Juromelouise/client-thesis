@@ -93,7 +93,11 @@ function ViewReport() {
 
   const handleStatusChangeClick = (newStatus) => {
     setNewStatus(newStatus);
-    onReasonModalOpen();
+    if (status === "Ongoing Investigation") {
+      onReasonModalOpen();
+    } else {
+      handleStatusChange(newStatus, reason);
+    }
   };
 
   const confirmStatusChange = () => {
@@ -298,21 +302,25 @@ function ViewReport() {
                 <Button
                   className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
                   radius="full"
-                  onPress={() => handleStatusChangeClick("Reviewed for Proper Action")}
+                  onPress={() =>
+                    handleStatusChangeClick("Reviewed for Proper Action")
+                  }
                 >
-                 Reviewed for Proper Action
+                  Reviewed for Proper Action
                 </Button>
               )}
               {status === "Reviewed for Proper Action" && (
                 <Button
                   className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
                   radius="full"
-                  onPress={() => handleStatusChangeClick("Ongoing Investigation")}
+                  onPress={() =>
+                    handleStatusChangeClick("Ongoing Investigation")
+                  }
                 >
                   Ongoing Investigation
                 </Button>
               )}
-                {status === "Ongoing Investigation" && (
+              {status === "Ongoing Investigation" && (
                 <Button
                   className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
                   radius="full"
@@ -325,7 +333,7 @@ function ViewReport() {
                 <Button
                   className="bg-red-500 text-white shadow-lg transition-colors duration-300 hover:bg-red-600"
                   radius="full"
-                  onPress={() => handleStatusChangeClick("Decline")}
+                  onPress={() => handleStatusChangeClick("Declined")}
                 >
                   Decline
                 </Button>
