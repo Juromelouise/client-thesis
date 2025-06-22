@@ -70,11 +70,18 @@ const DashedBorder = () => {
 const StreetsPolylines = ({ streets }) => {
   const map = useMap();
   const polylinesRef = useRef([]);
+  const infoWindowRef = useRef(null);
 
   useEffect(() => {
     // Remove previous polylines
     polylinesRef.current.forEach((polyline) => polyline.setMap(null));
     polylinesRef.current = [];
+
+    // Remove previous InfoWindow
+    if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+      infoWindowRef.current = null;
+    }
 
     if (!map || !window.google || !window.google.maps) return;
     if (!Array.isArray(streets)) return;
@@ -83,7 +90,6 @@ const StreetsPolylines = ({ streets }) => {
     streets.forEach((street) => {
       if (Array.isArray(street.segments)) {
         street.segments.forEach((segment) => {
-          // segment is an array of coordinates: [{lat, lng, _id}, ...]
           if (Array.isArray(segment) && segment.length > 1) {
             const path = segment.map((c) => ({ lat: c.lat, lng: c.lng }));
             const polyline = new window.google.maps.Polyline({
@@ -93,6 +99,41 @@ const StreetsPolylines = ({ streets }) => {
               strokeWeight: 3,
               map: map,
             });
+
+            // Show InfoWindow on mouseover
+            polyline.addListener("mouseover", (e) => {
+              if (!infoWindowRef.current) {
+                infoWindowRef.current = new window.google.maps.InfoWindow();
+              }
+              infoWindowRef.current.setContent(`
+    <div style="
+      font-size:13px;
+      font-weight:bold;
+      padding:4px 10px;
+      border-radius:4px;
+      background:#fff;
+      box-shadow:0 1px 4px rgba(0,0,0,0.12);
+      min-width:80px;
+      max-width:160px;
+      text-align:center;
+    ">
+      ${street.streetName}
+    </div>
+    <style>
+      .gm-ui-hover-effect { display: none !important; }
+    </style>
+  `);
+              infoWindowRef.current.setPosition(e.latLng);
+              infoWindowRef.current.open(map);
+            });
+
+            // Hide InfoWindow on mouseout
+            polyline.addListener("mouseout", () => {
+              if (infoWindowRef.current) {
+                infoWindowRef.current.close();
+              }
+            });
+
             polylinesRef.current.push(polyline);
           }
         });
@@ -102,11 +143,74 @@ const StreetsPolylines = ({ streets }) => {
     return () => {
       polylinesRef.current.forEach((polyline) => polyline.setMap(null));
       polylinesRef.current = [];
+      if (infoWindowRef.current) {
+        infoWindowRef.current.close();
+        infoWindowRef.current = null;
+      }
     };
   }, [map, streets]);
 
   return null;
 };
+
+const violationColors = {
+  "Overnight parking": "#808080",
+  "Hazard parking": "#e57373",
+  "Illegal parking": "#fbc02d",
+  "Towing Zone": "#1976d2",
+  "Loading and Unloading": "#388e3c",
+  "Illegal Sidewalk Use": "#8e24aa",
+};
+
+const violationsList = [
+  { value: "Overnight parking", label: "Overnight Parking" },
+  { value: "Hazard parking", label: "Hazard parking" },
+  { value: "Illegal parking", label: "Illegal parking" },
+  { value: "Towing Zone", label: "Towing Zone" },
+  { value: "Loading and Unloading", label: "Loading and Unloading" },
+  { value: "Illegal Sidewalk Use", label: "Illegal Sidewalk Use" },
+];
+
+const Legend = () => (
+  <div
+    style={{
+      position: "fixed",
+      top: "50%",
+      right: "32px",
+      transform: "translateY(-50%)",
+      background: "rgba(255,255,255,0.95)",
+      borderRadius: "6px",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+      padding: "10px 14px",
+      zIndex: 1000,
+      minWidth: "150px",
+      maxWidth: "180px",
+    }}
+  >
+    <div style={{ fontWeight: "bold", marginBottom: 8, fontSize: 15 }}>
+      Legend
+    </div>
+    {violationsList.map((v) => (
+      <div
+        key={v.value}
+        style={{ display: "flex", alignItems: "center", marginBottom: 6 }}
+      >
+        <span
+          style={{
+            display: "inline-block",
+            width: 18,
+            height: 8,
+            background: violationColors[v.value],
+            borderRadius: 2,
+            marginRight: 8,
+            border: "1px solid #ccc",
+          }}
+        />
+        <span style={{ fontSize: 13 }}>{v.label}</span>
+      </div>
+    ))}
+  </div>
+);
 
 const StreetLegends = () => {
   const [mapCenter] = useState({ lat: 14.5172, lng: 121.0364 });
@@ -180,6 +284,7 @@ const StreetLegends = () => {
         <DashedBorder />
         <StreetsPolylines streets={streets} />
       </Map>
+      <Legend />
     </APIProvider>
   );
 };

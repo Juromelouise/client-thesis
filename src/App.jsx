@@ -15,6 +15,7 @@ import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ViewPlateNumber from "./Components/Admin/Reports/ViewPlateNumber";
 import SpecificReport from "./Components/Home/SpecificReport";
+import StreetLegends from "./Components/Admin/Maps/StreetLegends";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
             exact="true"
           />
           <Route path="/single/plate/:id" element={<ViewPlateNumber/>} />
+          <Route path="/street-legends" element={<StreetLegends/>} />
         </Routes>
         <ToastContainer
           position="top-right"

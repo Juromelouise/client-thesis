@@ -20,8 +20,8 @@ import {
   HiInformationCircle,
   HiViewGrid,
   HiOutlineViewGrid,
-  HiAcademicCap,
 } from "react-icons/hi";
+import { FaMap } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getUser, logout } from "../../utils/helpers";
@@ -79,7 +79,7 @@ export default function Header() {
                 variant="light"
                 className="w-full text-left"
                 onPress={() => {
-                  navigate("/");
+                  navigate("/fyp");
                   onClose();
                 }}
               >
@@ -91,12 +91,12 @@ export default function Header() {
                 variant="light"
                 className="w-full text-left"
                 onPress={() => {
-                  navigate("/fyp");
+                  navigate("/street-legends");
                   onClose();
                 }}
               >
-                <HiAcademicCap className="inline mr-2" /> {/* Changed icon */}
-                FYP
+                <FaMap className="inline mr-2" />
+                Street Legends
               </Button>
               <Button
                 color="primary"
@@ -117,7 +117,7 @@ export default function Header() {
         <div className="flex items-center justify-between w-full h-16 px-4">
           {/* Left: Brand */}
           <div className="flex items-center gap-2">
-            <Link to="/">
+            <Link to="/fyp">
               <NavbarBrand>
                 {/* Updated: Use provided logo image */}
                 <span className="flex items-center select-none">
@@ -156,7 +156,7 @@ export default function Header() {
               isIconOnly
               variant="light"
               aria-label="Home"
-              onPress={() => navigate("/")}
+              onPress={() => navigate("/fyp")}
               className="rounded-full hover:bg-blue-100"
             >
               <HiHome className="text-2xl text-blue-600" />
@@ -165,10 +165,10 @@ export default function Header() {
               isIconOnly
               variant="light"
               aria-label="FYP"
-              onPress={() => navigate("/fyp")}
+              onPress={() => navigate("/street-legends")}
               className="rounded-full hover:bg-blue-100"
             >
-              <HiAcademicCap className="text-2xl text-blue-600" />{" "}
+              <FaMap className="text-2xl text-blue-600" />
               {/* Changed icon */}
             </Button>
             <Button
