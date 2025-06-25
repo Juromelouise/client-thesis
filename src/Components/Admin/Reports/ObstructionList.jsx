@@ -62,7 +62,7 @@ const ObstructionList = ({ filterStatus }) => {
     <div className="p-2">
       <Card className="shadow-lg">
         <h3 className="text-2xl font-semibold mb-5 text-center">
-          Obstruction Reports
+          Complaints
         </h3>
         <Table
           selectionMode="single"
