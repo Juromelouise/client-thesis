@@ -1,340 +1,139 @@
 import React from "react";
-import { ResponsiveContainer, PieChart, Pie, Tooltip, Cell, RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
+import { Card } from "@heroui/react";
+import apiClient from "../../../utils/apiClient";
 import {
-  Card,
-  Button,
-  Select,
-  SelectItem,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  cn,
-} from "@heroui/react";
-import { Icon } from "@iconify/react";
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 
-const pieChartData = [
-  {
-    title: "Traffic Sources",
-    categories: ["Search", "Direct", "Social", "Referral"],
-    color: "warning",
-    chartData: [
-      { name: "Search", value: 400 },
-      { name: "Direct", value: 300 },
-      { name: "Social", value: 300 },
-      { name: "Referral", value: 200 },
-    ],
-  },
-  {
-    title: "Device Usage",
-    categories: ["Mobile", "Desktop", "Tablet", "Smart TV"],
-    color: "success",
-    chartData: [
-      { name: "Mobile", value: 450 },
-      { name: "Desktop", value: 300 },
-      { name: "Tablet", value: 250 },
-      { name: "Smart TV", value: 200 },
-    ],
-  },
-  {
-    title: "Browser Usage",
-    categories: ["Chrome", "Safari", "Firefox", "Edge"],
-    color: "danger",
-    chartData: [
-      { name: "Chrome", value: 350 },
-      { name: "Safari", value: 280 },
-      { name: "Firefox", value: 220 },
-      { name: "Edge", value: 150 },
-    ],
-  },
-];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A020F0"];
 
-const radialBarChartData = [
-  {
-    title: "Activity",
-    color: "default",
-    total: 1358,
-    chartData: [{ name: "Active Users", value: 780, fill: "hsl(var(--heroui-primary))" }],
-  },
-  {
-    title: "Revenue",
-    color: "primary",
-    total: 2450,
-    chartData: [{ name: "Monthly", value: 1840, fill: "hsl(var(--heroui-primary))" }],
-  },
-  {
-    title: "Engagement",
-    color: "secondary",
-    total: 4200,
-    chartData: [{ name: "Daily Views", value: 3150, fill: "hsl(var(--heroui-secondary))" }],
-  },
-  {
-    title: "Conversion",
-    color: "success",
-    total: 1000,
-    chartData: [{ name: "Sales", value: 750, fill: "hsl(var(--heroui-success))" }],
-  },
-  {
-    title: "Bounce Rate",
-    color: "warning",
-    total: 100,
-    chartData: [{ name: "Exits", value: 80, fill: "hsl(var(--heroui-warning))" }],
-  },
-  {
-    title: "Errors",
-    color: "danger",
-    total: 500,
-    chartData: [{ name: "Issues", value: 450, fill: "hsl(var(--heroui-danger))" }],
-  },
-];
-
-export default function Charts() {
-  return (
-    <dl className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      {pieChartData.map((item, index) => (
-        <CircleChartCard key={index} {...item} />
-      ))}
-      {radialBarChartData.map((item, index) => (
-        <RadialBarChartCard key={index} {...item} />
-      ))}
-    </dl>
-  );
-}
-
-const formatTotal = (total) => {
-  return total >= 1000 ? `${(total / 1000).toFixed(1)}K` : total;
+const getMonthName = (monthNum) => {
+  if (!monthNum) return "";
+  const date = new Date();
+  date.setMonth(monthNum - 1);
+  return date.toLocaleString("default", { month: "long" });
 };
 
-const CircleChartCard = React.forwardRef(
-  ({ className, title, categories, color, chartData, ...props }, ref) => {
-    return (
-      <Card
-        ref={ref}
-        className={cn("min-h-[240px] border border-transparent dark:border-default-100 shadow-lg hover:shadow-xl transition-shadow duration-300", className)}
-        {...props}
-      >
-        <div className="flex flex-col gap-y-2 p-4 pb-0">
-          <div className="flex items-center justify-between gap-x-2">
-            <dt>
-              <h3 className="text-small font-medium text-default-500">{title}</h3>
-            </dt>
-            <div className="flex items-center justify-end gap-x-2">
-              <Select
-                aria-label="Time Range"
-                classNames={{
-                  trigger: "min-w-[100px] min-h-7 h-7",
-                  value: "text-tiny !text-default-500",
-                  selectorIcon: "text-default-500",
-                  popoverContent: "min-w-[120px]",
-                }}
-                defaultSelectedKeys={["per-day"]}
-                listboxProps={{
-                  itemClasses: {
-                    title: "text-tiny",
-                  },
-                }}
-                placeholder="Per Day"
-                size="sm"
-              >
-                <SelectItem key="per-day">Per Day</SelectItem>
-                <SelectItem key="per-week">Per Week</SelectItem>
-                <SelectItem key="per-month">Per Month</SelectItem>
-              </Select>
-              <Dropdown
-                classNames={{
-                  content: "min-w-[120px]",
-                }}
-                placement="bottom-end"
-              >
-                <DropdownTrigger>
-                  <Button isIconOnly radius="full" size="sm" variant="light">
-                    <Icon height={16} icon="solar:menu-dots-bold" width={16} />
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  itemClasses={{
-                    title: "text-tiny",
-                  }}
-                  variant="flat"
-                >
-                  <DropdownItem key="view-details">View Details</DropdownItem>
-                  <DropdownItem key="export-data">Export Data</DropdownItem>
-                  <DropdownItem key="set-alert">Set Alert</DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-            </div>
-          </div>
-        </div>
-        <div className="flex h-full flex-wrap items-center justify-center gap-x-2 lg:flex-nowrap">
-          <ResponsiveContainer
-            className="[&_.recharts-surface]:outline-none"
-            height={200}
-            width="100%"
-          >
-            <PieChart accessibilityLayer margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              <Tooltip
-                content={({ label, payload }) => (
-                  <div className="flex h-8 min-w-[120px] items-center gap-x-2 rounded-medium bg-background px-1 text-tiny shadow-small">
-                    <span className="font-medium text-foreground">{label}</span>
-                    {payload?.map((p, index) => {
-                      const name = p.name;
-                      const value = p.value;
-                      const category = categories.find((c) => c.toLowerCase() === name) ?? name;
+export default function Charts() {
+  const [topReporter, setTopReporter] = React.useState([]);
+  const [monthlyViolations, setMonthlyViolations] = React.useState([]);
 
-                      return (
-                        <div key={`${index}-${name}`} className="flex w-full items-center gap-x-2">
-                          <div
-                            className="h-2 w-2 flex-none rounded-full"
-                            style={{
-                              backgroundColor: `hsl(var(--heroui-${color}-${(index + 1) * 200}))`,
-                            }}
-                          />
+  const fetchData = async () => {
+    try {
+      const response = await apiClient.get("/chart/admin/reports/chart/monthly/violations");
+      const response1 = await apiClient.get("/chart/admin/reports/chart/top-reporter");
+      setMonthlyViolations(Array.isArray(response.data) ? response.data : []);
+      setTopReporter(Array.isArray(response1.data) ? response1.data : []);
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+      setMonthlyViolations([]);
+      setTopReporter([]);
+    }
+  };
 
-                          <div className="flex w-full items-center justify-between gap-x-2 pr-1 text-xs text-default-700">
-                            <span className="text-default-500">{category}</span>
-                            <span className="font-mono font-medium text-default-700">
-                              {formatTotal(value)}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-                cursor={false}
-              />
+  React.useEffect(() => {
+    fetchData();
+  }, []);
 
-              <Pie
-                animationDuration={1000}
-                animationEasing="ease"
-                data={chartData}
-                dataKey="value"
-                innerRadius="68%"
-                nameKey="name"
-                paddingAngle={-20}
-                strokeWidth={0}
-              >
-                {chartData.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={`hsl(var(--heroui-${color}-${(index + 1) * 200}))`}
-                  />
+  // Prepare data for BarChart (Monthly Violations)
+  const barData = monthlyViolations.map((month) => {
+    const entry = { month: typeof month._id === "number" ? getMonthName(month._id) : month._id };
+    month.statuses.forEach((status) => {
+      entry[status.status] = status.count;
+    });
+    return entry;
+  });
+
+  // Prepare data for PieChart (Top Reporters)
+  const pieData = topReporter.map((reporter) => ({
+    name: reporter.name,
+    value: reporter.count,
+  }));
+
+  return (
+    <div className="w-full max-w-6xl mx-auto py-10 px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Top Reporters Pie Chart */}
+        <Card className="bg-white/90 dark:bg-default-900 rounded-2xl shadow-xl p-8 flex flex-col justify-between hover:shadow-2xl transition-shadow">
+          <h3 className="text-2xl font-bold mb-6 text-primary-700 tracking-tight">Top Reporters</h3>
+          {pieData.length > 0 ? (
+            <div className="flex flex-col items-center justify-center gap-6">
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label={({ name, percent }) =>
+                      `${name} (${(percent * 100).toFixed(0)}%)`
+                    }
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend verticalAlign="bottom" iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+              <ul className="w-full mt-2 divide-y divide-default-200 bg-default-50 rounded-lg shadow-inner">
+                {pieData.map((reporter, idx) => (
+                  <li key={idx} className="flex justify-between py-2 px-4 items-center">
+                    <span className="font-medium text-default-700">{reporter.name}</span>
+                    <span className="font-mono text-default-500">{reporter.value}</span>
+                  </li>
                 ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
+              </ul>
+            </div>
+          ) : (
+            <div className="p-4 text-center text-default-500">No data available</div>
+          )}
+        </Card>
 
-          <div className="flex w-full flex-col justify-center gap-4 p-4 text-tiny text-default-500 lg:p-0">
-            {categories.map((category, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{
-                    backgroundColor: `hsl(var(--heroui-${color}-${(index + 1) * 200}))`,
-                  }}
+        {/* Monthly Violations Bar Chart */}
+        <Card className="bg-white/90 dark:bg-default-900 rounded-2xl shadow-xl p-8 flex flex-col justify-between hover:shadow-2xl transition-shadow">
+          <h3 className="text-2xl font-bold mb-6 text-primary-700 tracking-tight">Monthly Violations by Status</h3>
+          {barData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={barData} barGap={12}>
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 15, fill: "#555" }}
+                  axisLine={false}
+                  tickLine={false}
                 />
-
-                <span className="capitalize">{category}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Card>
-    );
-  }
-);
-
-CircleChartCard.displayName = "CircleChartCard";
-
-const RadialBarChartCard = React.forwardRef(
-  ({ className, title, color, chartData, total, ...props }, ref) => {
-    return (
-      <Card
-        ref={ref}
-        className={cn("h-[240px] border border-transparent dark:border-default-100 shadow-lg hover:shadow-xl transition-shadow duration-300", className)}
-        {...props}
-      >
-        <div className="flex flex-col gap-y-2 p-4 pb-0">
-          <div className="flex items-center justify-between gap-x-2">
-            <dt>
-              <h3 className="text-small font-medium text-default-500">{title}</h3>
-            </dt>
-            <div className="flex items-center justify-end gap-x-2">
-              <Dropdown
-                classNames={{
-                  content: "min-w-[120px]",
-                }}
-                placement="bottom-end"
-              >
-                <DropdownTrigger>
-                  <Button isIconOnly radius="full" size="sm" variant="light">
-                    <Icon height={16} icon="solar:menu-dots-bold" width={16} />
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  itemClasses={{
-                    title: "text-tiny",
-                  }}
-                  variant="flat"
-                >
-                  <DropdownItem key="view-details">View Details</DropdownItem>
-                  <DropdownItem key="export-data">Export Data</DropdownItem>
-                  <DropdownItem key="set-alert">Set Alert</DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-            </div>
-          </div>
-        </div>
-        <div className="flex h-full gap-x-3">
-          <ResponsiveContainer
-            className="[&_.recharts-surface]:outline-none"
-            height="100%"
-            width="100%"
-          >
-            <RadialBarChart
-              barSize={10}
-              cx="50%"
-              cy="50%"
-              data={chartData}
-              endAngle={-270}
-              innerRadius={90}
-              outerRadius={70}
-              startAngle={90}
-            >
-              <PolarAngleAxis angleAxisId={0} domain={[0, total]} tick={false} type="number" />
-              <RadialBar
-                angleAxisId={0}
-                animationDuration={1000}
-                animationEasing="ease"
-                background={{
-                  fill: "hsl(var(--heroui-default-100))",
-                }}
-                cornerRadius={12}
-                dataKey="value"
-              >
-                {chartData.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={`hsl(var(--heroui-${color === "default" ? "foreground" : color}))`}
+                <YAxis allowDecimals={false} tick={{ fontSize: 15, fill: "#555" }} />
+                <Tooltip />
+                <Legend verticalAlign="top" height={36} iconType="circle" />
+                {monthlyViolations[0]?.statuses.map((status, idx) => (
+                  <Bar
+                    key={status.status}
+                    dataKey={status.status}
+                    fill={COLORS[idx % COLORS.length]}
+                    name={status.status}
+                    radius={[8, 8, 0, 0]}
+                    barSize={36}
                   />
                 ))}
-              </RadialBar>
-              <g>
-                <text textAnchor="middle" x="50%" y="48%">
-                  <tspan className="fill-default-500 text-tiny" dy="-0.5em" x="50%">
-                    {chartData?.[0].name}
-                  </tspan>
-                  <tspan className="fill-foreground text-medium font-semibold" dy="1.5em" x="50%">
-                    {formatTotal(total)}
-                  </tspan>
-                </text>
-              </g>
-            </RadialBarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-    );
-  }
-);
-
-RadialBarChartCard.displayName = "RadialBarChartCard";
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="p-4 text-center text-default-500">No data available</div>
+          )}
+        </Card>
+      </div>
+    </div>
+  );
+}
