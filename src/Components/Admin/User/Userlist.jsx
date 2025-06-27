@@ -204,11 +204,9 @@ function Userlist() {
         <TableHeader>
           <TableColumn style={{ textAlign: "center" }}>Name</TableColumn>
           <TableColumn style={{ textAlign: "center" }}>Email</TableColumn>
+          <TableColumn style={{ textAlign: "center" }}>Role</TableColumn>
           <TableColumn style={{ textAlign: "center" }}>
             Phone Number
-          </TableColumn>
-          <TableColumn style={{ textAlign: "center" }}>
-            Role
           </TableColumn>
           <TableColumn style={{ textAlign: "center" }}>Action</TableColumn>
         </TableHeader>

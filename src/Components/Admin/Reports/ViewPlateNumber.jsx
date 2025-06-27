@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Card,
-  Button,
-  Spinner,
-  Divider,
-  Textarea,
-} from "@heroui/react";
+import { Card, Button, Spinner, Divider, Textarea } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../utils/apiClient";
 
@@ -47,10 +41,7 @@ function ViewPlateNumber() {
       [reportId]: 0.5,
     };
     setButtonOpacity(newButtonOpacity);
-    sessionStorage.setItem(
-      "buttonOpacity",
-      JSON.stringify(newButtonOpacity)
-    );
+    sessionStorage.setItem("buttonOpacity", JSON.stringify(newButtonOpacity));
   };
 
   if (loading) {
@@ -128,6 +119,25 @@ function ViewPlateNumber() {
               ))}
             </div>
           </div>
+
+          {/* Redesigned Offense and Fine Section */}
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <div className="flex-1 flex items-center gap-2">
+              <span className="text-base text-gray-600 font-medium">
+                Number of Offense:
+              </span>
+              <span className="font-semibold text-red-600 text-lg">
+                {report.offense.offense}
+              </span>
+            </div>
+            <div className="flex-1 flex items-center gap-2">
+              <span className="text-base text-gray-600 font-medium">Fine:</span>
+              <span className="font-semibold text-green-600 text-lg">
+                ₱{report.offense.fine}
+              </span>
+            </div>
+          </div>
+
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Violations:</p>
             <div className="flex flex-wrap items-center">

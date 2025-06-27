@@ -15,14 +15,14 @@ import {
   DropdownItem,
 } from "@heroui/react";
 import { HiChevronDown } from "react-icons/hi";
-import ReportList from "./Reports/ReportList";
+// import ReportList from "./Reports/ReportList";
 import ObstructionList from "./Reports/ObstructionList";
 import HeatMap from "./Maps/HeatMap";
 import AnnouncementPage from "../Home/Announcement";
 import apiClient from "../../utils/apiClient";
 import Charts from "./Charts/Charts";
 import PlateNumberList from "./Reports/PlateNumberList";
-import StreetLegends from "./Maps/StreetLegends";
+// import StreetLegends from "./Maps/StreetLegends";
 import Userlist from "./User/Userlist";
 import { getUser } from "../../utils/helpers";
 
@@ -49,8 +49,8 @@ const Dashboard = () => {
         return <HeatMap />;
       case "Announcement":
         return <AnnouncementPage ref={announcementPageRef} />;
-      case "StreetLegends":
-        return <StreetLegends />;
+      // case "StreetLegends":
+      //   return <StreetLegends />;
       case "Userlist":
         return <Userlist />;
       default:
@@ -201,7 +201,7 @@ const Dashboard = () => {
         >
           Heatmap
         </Button>
-        <Button
+        {/* <Button
           className={`mb-2 ${
             activePage === "StreetLegends"
               ? "bg-blue-500 text-white"
@@ -210,7 +210,7 @@ const Dashboard = () => {
           onPress={() => setActivePage("StreetLegends")}
         >
           Streets
-        </Button>
+        </Button> */}
         <Button
           className={`mb-2 ${
             activePage === "Announcement"
