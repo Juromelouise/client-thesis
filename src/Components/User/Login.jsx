@@ -141,7 +141,7 @@ return (
             <Button
               startContent={<Icon icon="flat-color-icons:google" width={24} />}
               variant="bordered"
-              onClick={doSignInWithGoogle}
+              onPress={doSignInWithGoogle}
             >
               Continue with Google
             </Button>

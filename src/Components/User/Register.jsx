@@ -31,7 +31,6 @@ export default function Register() {
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const handleSubmit = async () => {
-    // event.preventDefault();
     try {
       setLoading(true);
       const { data } = await apiClient.post("/user/register", {
@@ -96,10 +95,11 @@ export default function Register() {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-tr from-pink-400 to-yellow-500">
+    <div className="flex min-h-screen bg-gradient-to-tr from-pink-400 to-yellow-500">
       <div className="flex w-full items-center justify-center">
-        <div className="flex w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
-          <div className="w-1/2 p-8">
+        <div className="flex flex-col md:flex-row w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
+          {/* Form Section */}
+          <div className="w-full md:w-1/2 p-6 md:p-8">
             {alert && (
               <Alert
                 className="mb-4"
@@ -192,11 +192,15 @@ export default function Register() {
               />
             </Form>
           </div>
-          <Divider orientation="vertical" className="h-full" />
-          <div className="w-1/2 p-8 flex flex-col justify-center">
+          {/* Divider for desktop, hidden on mobile */}
+          <Divider orientation="vertical" className="hidden md:block h-full" />
+          {/* Welcome Section */}
+          <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-center">
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-gray-800">Welcome</h1>
-              <p className="mt-4 text-lg text-gray-600">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+                Welcome
+              </h1>
+              <p className="mt-4 text-base md:text-lg text-gray-600">
                 Create an account to get started
               </p>
             </div>
