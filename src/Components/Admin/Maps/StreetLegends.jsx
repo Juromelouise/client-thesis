@@ -116,8 +116,9 @@ const StreetsPolylines = ({ streets }) => {
       min-width:80px;
       max-width:160px;
       text-align:center;
-    ">
-      ${street.streetName}
+    "> 
+      ${street.streetName}, ${street.segments[0][0].lat} 
+      
     </div>
     <style>
       .gm-ui-hover-effect { display: none !important; }

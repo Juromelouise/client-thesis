@@ -63,18 +63,21 @@ export default function Login() {
     }
   };
 
-  return (
-    <div className="flex h-screen bg-gradient-to-tr from-green-400 to-blue-500">
-      <div className="flex w-1/2 items-center justify-center">
-        <div className="text-white text-center ml-16 animate-fade-in">
-          <h1 className="text-4xl font-bold animate-bounce">Welcome Back</h1>
-          <p className="mt-4 text-lg animate-pulse">
+return (
+  <div className="flex min-h-screen bg-gradient-to-tr from-green-400 to-blue-500">
+    <div className="flex flex-col md:flex-row w-full">
+      {/* Left Side - Welcome */}
+      <div className="flex w-full md:w-1/2 items-center justify-center py-12 md:py-0">
+        <div className="text-white text-center md:ml-16 animate-fade-in px-4">
+          <h1 className="text-3xl md:text-4xl font-bold animate-bounce">Welcome Back</h1>
+          <p className="mt-4 text-base md:text-lg animate-pulse">
             Log in to your account to continue
           </p>
         </div>
       </div>
-      <div className="flex w-1/2 items-center justify-center">
-        <div className="flex w-full max-w-sm flex-col gap-4 rounded-large px-8 pb-10 pt-6 mt-16 bg-white shadow-lg">
+      {/* Right Side - Login Form */}
+      <div className="flex w-full md:w-1/2 items-center justify-center py-8 md:py-0">
+        <div className="flex w-full max-w-sm flex-col gap-4 rounded-large px-4 md:px-8 pb-10 pt-6 mt-0 md:mt-16 bg-white shadow-lg">
           <Form
             className="flex flex-col gap-3"
             validationBehavior="native"
@@ -152,5 +155,6 @@ export default function Login() {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }

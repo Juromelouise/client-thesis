@@ -30,8 +30,8 @@ export default function Register() {
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async () => {
+    // event.preventDefault();
     try {
       setLoading(true);
       const { data } = await apiClient.post("/user/register", {
@@ -216,7 +216,7 @@ export default function Register() {
                 color="primary"
                 variant="solid"
                 className="w-full"
-                onClick={handleSubmit}
+                onPress={handleSubmit}
                 isLoading={loading}
               >
                 Sign Up
