@@ -18,13 +18,13 @@ import {
   HiOutlineLogout,
   HiHome,
   HiInformationCircle,
-  HiViewGrid,
   HiOutlineViewGrid,
 } from "react-icons/hi";
 import { FaMap } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getUser, logout } from "../../utils/helpers";
+import { toast } from "react-toastify";
 
 export default function Header() {
   const [user, setUser] = useState(null);
@@ -38,10 +38,17 @@ export default function Header() {
     return () => window.removeEventListener("user-logged-in", updateUser);
   }, []);
 
+  useEffect(() => {
+    const handleUserLoggedOut = () => setUser(null);
+    window.addEventListener("user-logged-out", handleUserLoggedOut);
+    return () => window.removeEventListener("user-logged-out", handleUserLoggedOut);
+  }, []);
+
   const handleLogout = () => {
     logout(() => {
+      window.dispatchEvent(new Event("user-logged-out"));
       navigate("/login");
-      window.location.reload();
+      toast.success("Logged out successfully");
     });
   };
 

@@ -127,13 +127,13 @@ function ViewPlateNumber() {
                 Number of Offense:
               </span>
               <span className="font-semibold text-red-600 text-lg">
-                {report.offense.offense}
+                {report?.offense?.offense ? report.offense.offense : "None"}
               </span>
             </div>
             <div className="flex-1 flex items-center gap-2">
               <span className="text-base text-gray-600 font-medium">Fine:</span>
               <span className="font-semibold text-green-600 text-lg">
-                ₱{report.offense.fine}
+                {report?.offense?.fine ? '₱' + report.offense.fine : "None"}
               </span>
             </div>
           </div>

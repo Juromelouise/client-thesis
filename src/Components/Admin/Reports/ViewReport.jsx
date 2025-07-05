@@ -19,9 +19,9 @@ import { PhotoView } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
 
 const violationsList = [
-  { value: "Overnight parking", label: "Overnight Parking" },
-  { value: "Hazard parking", label: "Hazard parking" },
-  { value: "Illegal parking", label: "Illegal parking" },
+  { value: "Overnight Parking", label: "Overnight Parking" },
+  { value: "Hazard Parking", label: "Hazard Parking" },
+  { value: "Illegal Parking", label: "Illegal Parking" },
   { value: "Towing Zone", label: "Towing Zone" },
   { value: "Loading and Unloading", label: "Loading and Unloading" },
   { value: "Illegal Sidewalk Use", label: "Illegal Sidewalk Use" },
@@ -201,6 +201,7 @@ function ViewReport() {
               />
               {(status && status === "Resolved") ||
               status === "Approved" ||
+              status === "Deleted" ||
               status === "Disapproved" ? (
                 <></>
               ) : (

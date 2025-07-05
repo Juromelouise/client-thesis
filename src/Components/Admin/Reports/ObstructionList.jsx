@@ -61,9 +61,7 @@ const ObstructionList = ({ filterStatus }) => {
   return (
     <div className="p-2">
       <Card className="shadow-lg">
-        <h3 className="text-2xl font-semibold mb-5 text-center">
-          Complaints
-        </h3>
+        <h3 className="text-2xl font-semibold mb-5 text-center">Complaints</h3>
         <Table
           selectionMode="single"
           aria-label="Example table with dynamic content"
@@ -113,28 +111,49 @@ const ObstructionList = ({ filterStatus }) => {
                 <TableCell className="text-center">{item?._id}</TableCell>
                 <TableCell className="text-center">{item?.location}</TableCell>
                 <TableCell className="text-center">
-                  {item?.violations?.join(", ")}
+                  {item?.violations?.length > 0
+                    ? item.violations.join(", ")
+                    : "-"}
                 </TableCell>
                 <TableCell className="text-center">
                   {formatDate(item?.createdAt)}
                 </TableCell>
                 <TableCell className="text-center">
-                  {!item.plateNumber ? (
-                    <>
-                      <Button
-                        auto
-                        flat
-                        color="primary"
-                        className="mr-2"
-                        onPress={() =>
-                          navigate(`/single/obstruction/${item._id}`)
-                        }
-                      >
-                        View
-                      </Button>
-                    </>
-                  ) : (
-                    <>
+                  {(() => {
+                    // Handle deleted reports
+                    if (item.status === "Deleted") {
+                      return (
+                        <Button
+                          auto
+                          flat
+                          color="warning"
+                          className="mr-2"
+                          onPress={() => navigate(`/single/report/${item._id}`)}
+                        >
+                          View Deleted
+                        </Button>
+                      );
+                    }
+
+                    // Handle obstructions (no plateNumber)
+                    if (!item.plateNumber) {
+                      return (
+                        <Button
+                          auto
+                          flat
+                          color="primary"
+                          className="mr-2"
+                          onPress={() =>
+                            navigate(`/single/obstruction/${item._id}`)
+                          }
+                        >
+                          View Obstruction
+                        </Button>
+                      );
+                    }
+
+                    // Handle regular reports (with plateNumber)
+                    return (
                       <Button
                         auto
                         flat
@@ -142,10 +161,10 @@ const ObstructionList = ({ filterStatus }) => {
                         className="mr-2"
                         onPress={() => navigate(`/single/report/${item._id}`)}
                       >
-                        View
+                        View Report
                       </Button>
-                    </>
-                  )}
+                    );
+                  })()}
                   {/* <Button auto flat color="error">
                     Delete
                   </Button> */}

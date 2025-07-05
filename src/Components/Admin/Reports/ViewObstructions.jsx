@@ -18,9 +18,9 @@ import { toast } from "react-toastify";
 import { PhotoView } from "react-photo-view";
 
 const violationsList = [
-  { value: "Overnight parking", label: "Overnight parking" },
-  { value: "Hazard parking", label: "Hazard parking" },
-  { value: "Illegal parking", label: "Illegal parking" },
+  { value: "Overnight Parking", label: "Overnight Parking" },
+  { value: "Hazard Parking", label: "Hazard Parking" },
+  { value: "Illegal Parking", label: "Illegal Parking" },
   { value: "Towing Zone", label: "Towing Zone" },
   { value: "Loading and Unloading", label: "Loading and Unloading" },
   { value: "Illegal Sidewalk Use", label: "Illegal Sidewalk Use" },

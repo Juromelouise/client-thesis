@@ -265,6 +265,9 @@ const Dashboard = () => {
                 <DropdownItem onClick={() => setFilterStatus("Resolved")}>
                   Resolved
                 </DropdownItem>
+                <DropdownItem onClick={() => setFilterStatus("Deleted")}>
+                  Deleted
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           )}
