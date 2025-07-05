@@ -226,7 +226,14 @@ function ViewReport() {
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Date Reported:</p>
-            <p className="text-gray-700">{formatDate(report.createdAt)}</p>
+            <p className="text-gray-700">
+              {formatDate(report.createdAt)}{" "}
+              {new Date(report.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
+            </p>
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Description:</p>

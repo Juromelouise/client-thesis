@@ -117,7 +117,7 @@ const StreetsPolylines = ({ streets }) => {
       max-width:160px;
       text-align:center;
     "> 
-      ${street.streetName}, ${street.segments[0][0].lat} 
+      ${street.streetName}
       
     </div>
     <style>
@@ -155,13 +155,13 @@ const StreetsPolylines = ({ streets }) => {
 };
 
 const violationColors = {
-  "All Violations": "#808080",           // Gray
-  "Overnight parking": "#4B6CB7",        // Blue
-  "Hazard parking": "#e57373",           // Red
-  "Illegal parking": "#fbc02d",          // Yellow
-  "Towing Zone": "#1976d2",              // Deep Blue
-  "Loading and Unloading": "#388e3c",    // Green
-  "Illegal Sidewalk Use": "#8e24aa",     // Purple
+  "All Violations": "#808080",
+  "Overnight parking": "#4B6CB7",
+  "Hazard parking": "#e57373",
+  "Illegal parking": "#fbc02d",
+  "Towing Zone": "#1976d2",
+  "Loading and Unloading": "#388e3c",
+  "Illegal Sidewalk Use": "#8e24aa",
 };
 
 const violationsList = [

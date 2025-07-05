@@ -117,7 +117,7 @@ function ViewObstruction() {
     setNewStatus(newStatus);
     if (status === "Ongoing Investigation") {
       onReasonModalOpen();
-    }else {
+    } else {
       handleStatusChange(newStatus, reason);
     }
   };
@@ -200,7 +200,14 @@ function ViewObstruction() {
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Date Reported:</p>
-            <p className="text-gray-700">{formatDate(report.createdAt)}</p>
+            <p className="text-gray-700">
+              {formatDate(report.createdAt)}{" "}
+              {new Date(report.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
+            </p>
           </div>
           <div className="mb-6">
             <p className="text-lg font-bold mb-1">Description:</p>
@@ -226,12 +233,12 @@ function ViewObstruction() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {report.confirmationImages.map((image, index) => (
                   <PhotoView key={index} src={image.url}>
-                  <img
-                    src={image.url}
-                    alt={`Report Image ${index + 1}`}
-                    className="w-full h-48 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105"
-                  />
-                </PhotoView>
+                    <img
+                      src={image.url}
+                      alt={`Report Image ${index + 1}`}
+                      className="w-full h-48 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105"
+                    />
+                  </PhotoView>
                 ))}
               </div>
             </div>
