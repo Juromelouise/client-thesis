@@ -16,6 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ViewPlateNumber from "./Components/Admin/Reports/ViewPlateNumber";
 import SpecificReport from "./Components/Home/SpecificReport";
 import StreetLegends from "./Components/Admin/Maps/StreetLegends";
+import About from "./Components/Home/About";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/FYP" element={<FYP />} exact="true" />
           <Route path="/report/:id" element={<SpecificReport />} exact="true" />
           <Route path="/profile" element={<Profile />} exact="true" />
+          <Route path="/about" element={<About />} exact="true" />
 
           {/* USER */}
           <Route path="/login" element={<Login />} exact="true" />
