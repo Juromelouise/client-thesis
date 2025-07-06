@@ -16,6 +16,88 @@ import Select from "react-select";
 import apiClient from "../../../utils/apiClient";
 import { toast } from "react-toastify";
 import { PhotoView } from "react-photo-view";
+import PropTypes from "prop-types";
+
+const PDFExportButton = ({ report }) => {
+  const [pdfComponents, setPdfComponents] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const loadPdfComponents = async () => {
+      try {
+        const [rendererModule, generatorModule] = await Promise.all([
+          import("@react-pdf/renderer"),
+          import("../../../utils/PDFObstruction"),
+        ]);
+
+        setPdfComponents({
+          PDFDownloadLink: rendererModule.PDFDownloadLink,
+          PDRObstructionPDFGenerator: generatorModule.default,
+        });
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to load PDF components:", err);
+        setError("Failed to load PDF tools");
+        setLoading(false);
+      }
+    };
+
+    loadPdfComponents();
+  }, []);
+
+  if (loading) {
+    return (
+      <Button isDisabled className="bg-gray-500 text-white">
+        Loading PDF tools...
+      </Button>
+    );
+  }
+
+  if (error) {
+    return (
+      <Button isDisabled className="bg-red-500 text-white">
+        {error}
+      </Button>
+    );
+  }
+
+  if (!pdfComponents) {
+    return null;
+  }
+
+  const { PDFDownloadLink, PDRObstructionPDFGenerator } = pdfComponents;
+
+  return (
+    <PDFDownloadLink
+      document={<PDRObstructionPDFGenerator report={report} />}
+      fileName={`obstruction_report_${report._id}.pdf`}
+    >
+      {({ loading: pdfLoading, error: pdfError }) => (
+        <Button
+          className={`${
+            pdfError
+              ? "bg-red-500 hover:bg-red-600"
+              : pdfLoading
+              ? "bg-gray-500"
+              : "bg-purple-600 hover:bg-purple-700"
+          } text-white`}
+          isDisabled={pdfLoading || pdfError}
+        >
+          {pdfError
+            ? "PDF Error"
+            : pdfLoading
+            ? "Generating..."
+            : "Download PDF"}
+        </Button>
+      )}
+    </PDFDownloadLink>
+  );
+};
+
+PDFExportButton.propTypes = {
+  report: PropTypes.object.isRequired,
+};
 
 const violationsList = [
   { value: "Overnight Parking", label: "Overnight Parking" },
@@ -259,13 +341,13 @@ function ViewObstruction() {
           <div className="mb-6">
             <p
               className={`text-lg font-bold mb-1 ${
-                status === "Approved" ? "" : "text-red-500"
+                status === "Approved" ? "" : "text-black-500"
               }`}
             >
               Status:{" "}
               <span
                 className={
-                  status === "Approved" ? "text-green-500" : "text-red-500"
+                  status === "Approved" ? "text-green-500" : "text-black-500"
                 }
               >
                 {status}
@@ -314,6 +396,9 @@ function ViewObstruction() {
               )}
             </div>
           </div>
+        </div>
+        <div className="flex justify-end mt-6">
+          {report && <PDFExportButton report={report} />}
         </div>
       </Card>
 

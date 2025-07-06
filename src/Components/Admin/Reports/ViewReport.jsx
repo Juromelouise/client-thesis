@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   Button,
@@ -17,6 +17,88 @@ import apiClient from "../../../utils/apiClient";
 import { toast } from "react-toastify";
 import { PhotoView } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
+import PropTypes from "prop-types";
+
+const PDFExportButton = ({ report }) => {
+  const [pdfComponents, setPdfComponents] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const loadPdfComponents = async () => {
+      try {
+        const [rendererModule, generatorModule] = await Promise.all([
+          import("@react-pdf/renderer"),
+          import("../../../utils/PDFReport"),
+        ]);
+
+        setPdfComponents({
+          PDFDownloadLink: rendererModule.PDFDownloadLink,
+          PDFGenerator: generatorModule.default,
+        });
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to load PDF components:", err);
+        setError("Failed to load PDF tools");
+        setLoading(false);
+      }
+    };
+
+    loadPdfComponents();
+  }, []);
+
+  if (loading) {
+    return (
+      <Button isDisabled className="bg-gray-500 text-white">
+        Loading PDF tools...
+      </Button>
+    );
+  }
+
+  if (error) {
+    return (
+      <Button isDisabled className="bg-red-500 text-white">
+        {error}
+      </Button>
+    );
+  }
+
+  if (!pdfComponents) {
+    return null;
+  }
+
+  const { PDFDownloadLink, PDFGenerator } = pdfComponents;
+
+  return (
+    <PDFDownloadLink
+      document={<PDFGenerator report={report} />}
+      fileName={`report_${report._id}.pdf`}
+    >
+      {({ loading: pdfLoading, error: pdfError }) => (
+        <Button
+          className={`${
+            pdfError
+              ? "bg-red-500 hover:bg-red-600"
+              : pdfLoading
+              ? "bg-gray-500"
+              : "bg-purple-600 hover:bg-purple-700"
+          } text-white`}
+          isDisabled={pdfLoading || pdfError}
+        >
+          {pdfError
+            ? "PDF Error"
+            : pdfLoading
+            ? "Generating..."
+            : "Download PDF"}
+        </Button>
+      )}
+    </PDFDownloadLink>
+  );
+};
+
+PDFExportButton.propTypes = {
+  report: PropTypes.object.isRequired,
+};
 
 const violationsList = [
   { value: "Overnight Parking", label: "Overnight Parking" },
@@ -43,6 +125,7 @@ function ViewReport() {
   const [newStatus, setNewStatus] = useState("");
   const [reason, setReason] = useState("");
   const [selectedViolations, setSelectedViolations] = useState([]);
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -71,6 +154,7 @@ function ViewReport() {
 
   const handleStatusChange = async (newStatus, reason) => {
     try {
+      setButtonLoading(true);
       const { data } = await apiClient.put(
         `/report/admin/report/status/${id}`,
         {
@@ -83,7 +167,9 @@ function ViewReport() {
       setReason("");
       setStatusChangeCount(data.report.editableStatus);
       toast.success("Status updated successfully!");
+      setButtonLoading(false);
     } catch (error) {
+      setButtonLoading(false);
       console.error("Error updating report status:", error);
       if (error.response && error.response.data.message) {
         toast.warning(error.response.data.message);
@@ -163,6 +249,7 @@ function ViewReport() {
             Go Back
           </Button>
         </div>
+
         <Divider className="my-4" />
         <div className="mt-4">
           <div className="mb-6">
@@ -231,7 +318,6 @@ function ViewReport() {
               {new Date(report.createdAt).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
-                second: "2-digit",
               })}
             </p>
           </div>
@@ -293,18 +379,19 @@ function ViewReport() {
           <div className="mb-6">
             <p
               className={`text-lg font-bold mb-1 ${
-                status === "Approved" ? "" : "text-red-500"
+                status === "Approved" ? "" : "text-black-500"
               }`}
             >
               Status:{" "}
               <span
                 className={
-                  status === "Approved" ? "text-green-500" : "text-red-500"
+                  status === "Approved" ? "text-green-500" : "text-black-500"
                 }
               >
                 {status}
               </span>
             </p>
+
             <div className="flex space-x-2">
               {status === "Pending" && (
                 <Button
@@ -313,6 +400,7 @@ function ViewReport() {
                   onPress={() =>
                     handleStatusChangeClick("Reviewed for Proper Action")
                   }
+                  isDisabled={buttonLoading}
                 >
                   Reviewed for Proper Action
                 </Button>
@@ -324,6 +412,7 @@ function ViewReport() {
                   onPress={() =>
                     handleStatusChangeClick("Ongoing Investigation")
                   }
+                  isDisabled={buttonLoading}
                 >
                   Ongoing Investigation
                 </Button>
@@ -333,6 +422,7 @@ function ViewReport() {
                   className="bg-green-500 text-white shadow-lg transition-colors duration-300 hover:bg-green-600"
                   radius="full"
                   onPress={() => handleStatusChangeClick("Approved")}
+                  isDisabled={buttonLoading}
                 >
                   Approved
                 </Button>
@@ -342,12 +432,16 @@ function ViewReport() {
                   className="bg-red-500 text-white shadow-lg transition-colors duration-300 hover:bg-red-600"
                   radius="full"
                   onPress={() => handleStatusChangeClick("Declined")}
+                  isDisabled={buttonLoading}
                 >
                   Decline
                 </Button>
               )}
             </div>
           </div>
+        </div>
+        <div className="flex justify-end mt-6">
+          {report && <PDFExportButton report={report} />}
         </div>
       </Card>
 

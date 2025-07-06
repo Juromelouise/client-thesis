@@ -112,7 +112,9 @@ const ObstructionList = ({ filterStatus }) => {
                 <TableCell className="text-center">{item?.location}</TableCell>
                 <TableCell className="text-center">
                   {item?.violations?.length > 0
-                    ? item.violations.join(", ")
+                    ? item.violations.join(", ").length > 33
+                      ? `${item.violations.join(", ").substring(0, 33)}...`
+                      : item.violations.join(", ")
                     : "-"}
                 </TableCell>
                 <TableCell className="text-center">

@@ -17,6 +17,7 @@
     "@iconify-icons/fa-solid": "^1.2.4",
     "@iconify/react": "^5.2.0",
     "@react-google-maps/api": "^2.20.5",
+    "@react-pdf/renderer": "^4.3.0",
     "@react-stately/data": "^3.12.1",
     "@reduxjs/toolkit": "^2.5.0",
     "@vis.gl/react-google-maps": "^1.5.2",
