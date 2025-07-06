@@ -1,152 +1,199 @@
-import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
-import { useEffect, useState, useRef } from "react";
+import { 
+  APIProvider, 
+  Map,
+  useMap,
+  useMapsLibrary 
+} from "@vis.gl/react-google-maps";
+import { useEffect, useState } from "react";
 import apiClient from "../../../utils/apiClient";
 
-const DashedBorderWithHeatmap = () => {
-  const map = useMap();
+const HeatMapContent = ({ 
+  selectedMonth, 
+  selectedYear, 
+  months, 
+  years, 
+  onMonthChange, 
+  onYearChange 
+}) => {
   const [boundaryCoords, setBoundaryCoords] = useState([]);
-  const [heatmapPoints, setHeatmapPoints] = useState([]); // State for heatmap points
+  const [heatmapLayer, setHeatmapLayer] = useState(null);
+  const [polyline, setPolyline] = useState(null);
+
+  const map = useMap();
+  const mapsLib = useMapsLibrary("maps");
+  const visualizationLib = useMapsLibrary("visualization");
 
   useEffect(() => {
-    console.log("Fetching geojson data...");
+    if (!map || !mapsLib || !visualizationLib) return;
+
+    // Load boundary coordinates
     fetch("/export.geojson")
       .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
       })
       .then((geojson) => {
-        const coordinates =
-          geojson.features[0]?.geometry?.coordinates?.[0] || [];
+        const coordinates = geojson.features[0]?.geometry?.coordinates?.[0] || [];
         const coords = coordinates.map(([lng, lat]) => ({ lat, lng }));
 
-        if (
-          coords.length &&
-          (coords[0].lat !== coords[coords.length - 1].lat ||
-            coords[0].lng !== coords[coords.length - 1].lng)
-        ) {
+        if (coords.length && (coords[0].lat !== coords[coords.length - 1].lat ||
+            coords[0].lng !== coords[coords.length - 1].lng)) {
           coords.push(coords[0]);
         }
 
         setBoundaryCoords(coords);
       })
       .catch((error) => console.error("Error loading geojson:", error));
-  }, []);
+  }, [map, mapsLib, visualizationLib]);
 
   useEffect(() => {
-    // Fetch coordinates from the backend using Axios
-    apiClient
-      .get(`/map/coordinates`)
-      .then((response) => {
-        const points = response.data.map(
-          (coord) => new window.google.maps.LatLng(coord.lat, coord.lng)
-        );
-        setHeatmapPoints(points); // Set the heatmap points
-      })
-      .catch((error) => console.error("Error fetching coordinates:", error));
-  }, []);
+    if (!map || !visualizationLib) return;
+
+    // Fetch heatmap data with month/year filter
+    apiClient.get(`/map/coordinates`, {
+      params: { month: selectedMonth, year: selectedYear }
+    })
+    .then((response) => {
+      const points = response.data
+        .filter(coord => coord.lat && coord.lng)
+        .map(coord => new google.maps.LatLng(coord.lat, coord.lng));
+
+      // Clear previous heatmap layer if exists
+      if (heatmapLayer) {
+        heatmapLayer.setMap(null);
+      }
+
+      // Create new heatmap layer
+      const newHeatmap = new visualizationLib.HeatmapLayer({
+        data: points,
+        map: map,
+        radius: 20,
+        dissipating: true,
+      });
+
+      setHeatmapLayer(newHeatmap);
+    })
+    .catch((error) => console.error("Error fetching coordinates:", error));
+
+    return () => {
+      if (heatmapLayer) {
+        heatmapLayer.setMap(null);
+      }
+    };
+  }, [selectedMonth, selectedYear, map, visualizationLib]);
 
   useEffect(() => {
-    if (
-      !map ||
-      !window.google ||
-      !window.google.maps ||
-      boundaryCoords.length === 0
-    )
-      return;
+    if (!map || !mapsLib || !boundaryCoords.length) return;
 
-    const dashedLine = new window.google.maps.Polyline({
+    // Clear previous polyline if exists
+    if (polyline) {
+      polyline.setMap(null);
+    }
+
+    // Create new polyline for boundary
+    const newPolyline = new mapsLib.Polyline({
       path: boundaryCoords,
       strokeOpacity: 0,
       strokeWeight: 2,
-      icons: [
-        {
-          icon: {
-            path: "M 0,-1 0,1",
-            strokeOpacity: 1,
-            scale: 3,
-          },
-          offset: "0",
-          repeat: "10px",
+      icons: [{
+        icon: {
+          path: "M 0,-1 0,1",
+          strokeOpacity: 1,
+          scale: 3,
         },
-      ],
+        offset: "0",
+        repeat: "10px",
+      }],
       map: map,
     });
 
-    const heatmap = new window.google.maps.visualization.HeatmapLayer({
-      data: heatmapPoints, // Use the fetched heatmap points
-      radius: 20,
-      map: map,
-    });
+    setPolyline(newPolyline);
 
     return () => {
-      dashedLine.setMap(null);
-      heatmap.setMap(null);
+      if (polyline) {
+        polyline.setMap(null);
+      }
     };
-  }, [map, boundaryCoords, heatmapPoints]);
+  }, [boundaryCoords, map, mapsLib]);
 
-  return null;
+  return null; // All rendering is handled by the parent component
 };
 
 const HeatMap = () => {
   const [mapCenter] = useState({ lat: 14.5172, lng: 121.0364 });
   const [mapZoom] = useState(14);
-  const mapRef = useRef(null); // Reference to the Google Maps instance
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
-  const handleMapIdle = () => {
-    if (mapRef.current) {
-      const center = mapRef.current.getCenter();
-      const zoom = mapRef.current.getZoom();
-      console.log("Map idle at center:", center.toJSON(), "Zoom:", zoom);
-    }
-  };
-
-  // Custom map style to show only street and barangay names
-  const mapStyle = [
-    {
-      featureType: "poi", // Points of interest (e.g., restaurants, schools)
-      stylers: [{ visibility: "off" }], // Hide them
-    },
-    {
-      featureType: "transit", // Transit stations
-      stylers: [{ visibility: "off" }], // Hide them
-    },
-    {
-      featureType: "administrative.neighborhood", // Barangay names
-      stylers: [{ visibility: "on" }], // Show them
-    },
-    {
-      featureType: "road", // Roads and street names
-      elementType: "labels",
-      stylers: [{ visibility: "on" }], // Show them
-    },
+  // Generate month options
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
   ];
 
+  // Generate year options (last 5 years and current year)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+
   return (
-    <APIProvider
-      apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-      libraries={["visualization"]}
-    >
-      <Map
-        defaultCenter={mapCenter} // Use defaultCenter instead of center
-        defaultZoom={mapZoom} // Use defaultZoom instead of zoom
-        style={{ width: "100%", height: "100vh" }}
-        options={{
-          gestureHandling: "auto", // Allow default gestures (dragging, zooming, etc.)
-          disableDefaultUI: false, // Show default UI controls
-          zoomControl: true, // Enable zoom control
-          scrollwheel: true, // Allow zooming with the scroll wheel
-          draggable: true, // Allow dragging the map
-          fullscreenControl: true, // Enable fullscreen control
-          styles: mapStyle, // Apply the custom map style
-        }}
-        onLoad={(map) => (mapRef.current = map)} // Store the map instance in the ref
-        onIdle={handleMapIdle} // Log center and zoom on idle
-      >
-        <DashedBorderWithHeatmap />
-      </Map>
-    </APIProvider>
+    <div style={{ position: "relative", width: "100%", height: "70vh" }}>
+      {/* Month/Year Selector */}
+      <div style={{
+        position: "absolute",
+        top: "10px",
+        left: "10px",
+        zIndex: 1000,
+        backgroundColor: "white",
+        padding: "10px",
+        borderRadius: "5px",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
+      }}>
+        <div style={{ marginBottom: "10px" }}>
+          <label htmlFor="month" style={{ marginRight: "10px" }}>Month:</label>
+          <select
+            id="month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+          >
+            {months.map((month, index) => (
+              <option key={month} value={index + 1}>{month}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="year" style={{ marginRight: "10px" }}>Year:</label>
+          <select
+            id="year"
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+          >
+            {years.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Google Map */}
+      <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+        <Map
+          defaultCenter={mapCenter}
+          defaultZoom={mapZoom}
+          style={{ width: "100%", height: "100%" }}
+          gestureHandling="greedy"
+          disableDefaultUI={false}
+        >
+          <HeatMapContent 
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+            months={months}
+            years={years}
+            onMonthChange={setSelectedMonth}
+            onYearChange={setSelectedYear}
+          />
+        </Map>
+      </APIProvider>
+    </div>
   );
 };
 

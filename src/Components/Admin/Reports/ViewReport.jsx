@@ -29,12 +29,12 @@ const PDFExportButton = ({ report }) => {
       try {
         const [rendererModule, generatorModule] = await Promise.all([
           import("@react-pdf/renderer"),
-          import("../../../utils/PDFReport"),
+          import("../../../utils/PDFObstruction"),
         ]);
 
         setPdfComponents({
           PDFDownloadLink: rendererModule.PDFDownloadLink,
-          PDFGenerator: generatorModule.default,
+          PDRObstructionPDFGenerator: generatorModule.default,
         });
         setLoading(false);
       } catch (err) {
@@ -67,12 +67,12 @@ const PDFExportButton = ({ report }) => {
     return null;
   }
 
-  const { PDFDownloadLink, PDFGenerator } = pdfComponents;
+  const { PDFDownloadLink, PDRObstructionPDFGenerator } = pdfComponents;
 
   return (
     <PDFDownloadLink
-      document={<PDFGenerator report={report} />}
-      fileName={`report_${report._id}.pdf`}
+      document={<PDRObstructionPDFGenerator report={report} />}
+      fileName={`obstruction_report_${report._id}.pdf`}
     >
       {({ loading: pdfLoading, error: pdfError }) => (
         <Button

@@ -20,6 +20,7 @@ import {
   HiInformationCircle,
   HiOutlineViewGrid,
 } from "react-icons/hi";
+import { HiMiniMegaphone } from "react-icons/hi2";
 import { FaMap } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -105,6 +106,19 @@ export default function Header() {
                 <FaMap className="inline mr-2" />
                 Street Legends
               </Button>
+              {/* Added Announcements button */}
+              <Button
+                color="primary"
+                variant="light"
+                className="w-full text-left"
+                onPress={() => {
+                  navigate("/announcement");
+                  onClose();
+                }}
+              >
+                <HiMiniMegaphone className="inline mr-2" />
+                Announcements
+              </Button>
               <Button
                 color="primary"
                 variant="light"
@@ -126,7 +140,6 @@ export default function Header() {
           <div className="flex items-center gap-2">
             <Link to="/fyp">
               <NavbarBrand>
-                {/* Updated: Use provided logo image */}
                 <span className="flex items-center select-none">
                   <img
                     src="/bovo_logo.png"
@@ -176,7 +189,16 @@ export default function Header() {
               className="rounded-full hover:bg-blue-100"
             >
               <FaMap className="text-2xl text-blue-600" />
-              {/* Changed icon */}
+            </Button>
+            {/* Added Announcements button */}
+            <Button
+              isIconOnly
+              variant="light"
+              aria-label="Announcements"
+              onPress={() => navigate("/announcement")}
+              className="rounded-full hover:bg-blue-100"
+            >
+              <HiMiniMegaphone className="text-2xl text-blue-600" />
             </Button>
             <Button
               isIconOnly

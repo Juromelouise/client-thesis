@@ -336,6 +336,14 @@ function ViewObstruction() {
                 <span className="font-semibold">Email:</span>{" "}
                 {report.reporter?.email}
               </p>
+              <p className="mb-1">
+                <span className="font-semibold">Phone Number:</span>{" "}
+                {report.reporter?.phoneNumber}
+              </p>
+              <p className="mb-1">
+                <span className="font-semibold">Address:</span>{" "}
+                {report.reporter?.address}
+              </p>
             </div>
           </div>
           <div className="mb-6">

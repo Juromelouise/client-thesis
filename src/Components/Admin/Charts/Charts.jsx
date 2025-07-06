@@ -8,19 +8,30 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import { FiAlertCircle, FiCalendar, FiUser } from "react-icons/fi";
 import apiClient from "../../../utils/apiClient";
+
+const COLORS = [
+  "#0088FE", "#00C49F", "#FFBB28", "#FF8042",
+  "#A4DE6C", "#D0ED57", "#8884D8", "#82CA9D"
+];
 
 export default function Charts() {
   const [totalReports, setTotalReports] = useState(0);
   const [topReporters, setTopReporters] = useState([]);
   const [activeMonths, setActiveMonths] = useState(0);
   const [monthlyViolations, setMonthlyViolations] = useState([]);
+  const [timeOfDayData, setTimeOfDayData] = useState([]);
+  const [reportTypeData, setReportTypeData] = useState([]);
 
   useEffect(() => {
     apiClient.get("/chart/admin/reports/chart/top-reporter")
       .then(res => {
+        console.log("Top Reporters:", res.data);
         setTopReporters(res.data || []);
       });
 
@@ -50,6 +61,18 @@ export default function Charts() {
           });
         });
         setTotalReports(total);
+      });
+
+    // Fetch time of day data
+    apiClient.get("/chart/admin/reports/chart/time-of-day")
+      .then(res => {
+        setTimeOfDayData(res.data);
+      });
+
+    // Fetch report type data
+    apiClient.get("/chart/admin/reports/chart/report-types")
+      .then(res => {
+        setReportTypeData(res.data);
       });
   }, []);
 
@@ -81,6 +104,62 @@ export default function Charts() {
             <div className="p-3 bg-amber-100 rounded-full">
               <FiCalendar className="text-amber-600 text-xl" />
             </div>
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <Card className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">Reports by Time of Day</h3>
+          <div className="h-96"> {/* Increased height to accommodate more time slots */}
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={timeOfDayData}
+                layout="vertical"
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <XAxis type="number" />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={80}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip formatter={(value) => [`${value} reports`, 'Count']} />
+                <Legend />
+                <Bar dataKey="value" name="Reports" fill="#8884d8">
+                  {timeOfDayData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">Report Types</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={reportTypeData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {reportTypeData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => [`${value} reports`, 'Count']} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </Card>
       </div>
