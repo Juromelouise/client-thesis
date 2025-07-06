@@ -27,10 +27,45 @@ export default function Register() {
   const [alert, setAlert] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [passwordError, setPasswordError] = React.useState("");
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
+  const validatePassword = (value) => {
+    const minLength = value.length >= 8;
+    const hasUpperCase = /[A-Z]/.test(value);
+    const hasNumber = /[0-9]/.test(value);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+
+    let errorMessage = "";
+    
+    if (!minLength) {
+      errorMessage = "Password must be at least 8 characters";
+    } else if (!hasUpperCase) {
+      errorMessage = "Password must contain at least 1 uppercase letter";
+    } else if (!hasNumber) {
+      errorMessage = "Password must contain at least 1 number";
+    } else if (!hasSpecialChar) {
+      errorMessage = "Password must contain at least 1 special character";
+    }
+
+    setPasswordError(errorMessage);
+    return errorMessage === "";
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    validatePassword(value);
+  };
+
   const handleSubmit = async () => {
+    if (!validatePassword(password)) {
+      setAlert("error");
+      setError("Please fix password requirements");
+      return;
+    }
+
     try {
       setLoading(true);
       const { data } = await apiClient.post("/user/register", {
@@ -188,7 +223,10 @@ export default function Register() {
                 type={isVisible ? "text" : "password"}
                 variant="bordered"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
+                errorMessage={passwordError}
+                isInvalid={!!passwordError}
+                description="Password must contain: 8+ characters, 1 uppercase, 1 number, 1 special character"
               />
             </Form>
           </div>
@@ -222,6 +260,7 @@ export default function Register() {
                 className="w-full"
                 onPress={handleSubmit}
                 isLoading={loading}
+                isDisabled={!!passwordError || !password}
               >
                 Sign Up
               </Button>
