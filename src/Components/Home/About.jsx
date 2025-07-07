@@ -15,7 +15,7 @@ function About() {
           <div className="w-24 h-1.5 bg-indigo-500 mx-auto rounded-full" />
           <div className="pt-4">
             <a
-              href="/Bovo_App.apk"
+              href="/Bovo_Application.apk"
               download
               className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-lg transition-all transform hover:-translate-y-0.5"
             >
