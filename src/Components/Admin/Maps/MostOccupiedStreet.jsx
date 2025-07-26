@@ -5,6 +5,14 @@ import { styled } from '@mui/material/styles';
 import apiClient from '../../../utils/apiClient';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 
+// Predefined color palette for streets
+const STREET_COLORS = [
+  '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
+  '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+  '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+  '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC'
+];
+
 const ColorLegend = styled(Box)({
   position: 'absolute',
   bottom: '20px',
@@ -17,7 +25,7 @@ const ColorLegend = styled(Box)({
   width: '300px',
 });
 
-const StreetPolylines = ({ streets, getColorForCases, opacity }) => {
+const StreetPolylines = ({ streets, streetColors, opacity }) => {
   const map = useMap();
   const polylinesRef = useRef([]);
 
@@ -39,7 +47,7 @@ const StreetPolylines = ({ streets, getColorForCases, opacity }) => {
         const polyline = new window.google.maps.Polyline({
           path: path,
           geodesic: true,
-          strokeColor: getColorForCases(street.totalCases),
+          strokeColor: streetColors[street.streetName] || '#FF0000',
           strokeOpacity: opacity,
           strokeWeight: 6,
           map: map
@@ -51,7 +59,7 @@ const StreetPolylines = ({ streets, getColorForCases, opacity }) => {
     return () => {
       polylinesRef.current.forEach(polyline => polyline.setMap(null));
     };
-  }, [map, streets, getColorForCases, opacity]);
+  }, [map, streets, streetColors, opacity]);
 
   return null;
 };
@@ -64,6 +72,7 @@ function MostOccupiedStreet() {
   const [opacity, setOpacity] = useState(0.7);
   const [useAdvancedMarkers, setUseAdvancedMarkers] = useState(false);
   const [pieData, setPieData] = useState([]);
+  const [streetColors, setStreetColors] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,11 +99,18 @@ function MostOccupiedStreet() {
         setStreets(sortedStreets);
         setMaxCases(sortedStreets[0]?.totalCases || 1);
         
+        // Assign unique colors to each street
+        const colors = {};
+        sortedStreets.forEach((street, index) => {
+          colors[street.streetName] = STREET_COLORS[index % STREET_COLORS.length];
+        });
+        setStreetColors(colors);
+        
         // Prepare pie chart data
-        const pieChartData = sortedStreets.slice(0, 10).map(street => ({
+        const pieChartData = sortedStreets.slice(0, 10).map((street, index) => ({
           name: street.streetName,
           value: street.totalCases,
-          color: getColorForCases(street.totalCases)
+          color: STREET_COLORS[index % STREET_COLORS.length]
         }));
         setPieData(pieChartData);
         
@@ -112,12 +128,6 @@ function MostOccupiedStreet() {
     fetchData();
   }, []);
 
-  const getColorForCases = (cases) => {
-    const ratio = (cases || 0) / (maxCases || 1);
-    const hue = (1 - ratio) * 120;
-    return `hsl(${hue}, 100%, 50%)`;
-  };
-
   const handleOpacityChange = (event, newValue) => {
     setOpacity(newValue / 100);
   };
@@ -130,7 +140,7 @@ function MostOccupiedStreet() {
 
     const markerContent = (
       <div style={{
-        backgroundColor: getColorForCases(street.totalCases),
+        backgroundColor: streetColors[street.streetName] || '#FF0000',
         color: 'white',
         padding: '4px 8px',
         borderRadius: '4px',
@@ -138,7 +148,7 @@ function MostOccupiedStreet() {
         fontWeight: 'bold',
         whiteSpace: 'nowrap'
       }}>
-        {street.streetName}: {street.totalCases}
+        {street.totalCases} cases
       </div>
     );
 
@@ -163,7 +173,7 @@ function MostOccupiedStreet() {
         options={{
           icon: {
             path: 'M0-48c-9.8 0-17.7 7.8-17.7 17.4 0 15.5 17.7 30.6 17.7 30.6s17.7-15.4 17.7-30.6c0-9.6-7.9-17.4-17.7-17.4z',
-            fillColor: getColorForCases(street.totalCases),
+            fillColor: streetColors[street.streetName] || '#FF0000',
             fillOpacity: opacity,
             strokeWeight: 0,
             scale: 0.8
@@ -185,7 +195,7 @@ function MostOccupiedStreet() {
           defaultZoom={15}
           mapId={useAdvancedMarkers ? import.meta.env.VITE_GOOGLE_MAPS_MAP_ID : undefined}
         >
-          <StreetPolylines streets={streets} getColorForCases={getColorForCases} opacity={opacity} />
+          <StreetPolylines streets={streets} streetColors={streetColors} opacity={opacity} />
           {streets.map((street, index) => renderMarker(street, index))}
         </Map>
 
