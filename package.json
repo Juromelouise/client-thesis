@@ -13,9 +13,12 @@
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@heroui/react": "2.6.13",
     "@iconify-icons/fa-solid": "^1.2.4",
     "@iconify/react": "^5.2.0",
+    "@mui/material": "^7.2.0",
     "@react-google-maps/api": "^2.20.5",
     "@react-pdf/renderer": "^4.3.0",
     "@react-stately/data": "^3.12.1",

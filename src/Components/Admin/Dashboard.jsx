@@ -24,6 +24,7 @@ import Charts from "./Charts/Charts";
 import PlateNumberList from "./Reports/PlateNumberList";
 // import StreetLegends from "./Maps/StreetLegends";
 import Userlist from "./User/Userlist";
+import MostOccupiedStreet from "./Maps/MostOccupiedStreet";
 import { getUser } from "../../utils/helpers";
 
 const Dashboard = () => {
@@ -47,6 +48,8 @@ const Dashboard = () => {
         return <PlateNumberList />;
       case "Heatmap":
         return <HeatMap />;
+      case "Most Occupied Street":
+        return <MostOccupiedStreet />;
       case "Announcement":
         return <AnnouncementPage ref={announcementPageRef} />;
       // case "StreetLegends":
@@ -201,16 +204,16 @@ const Dashboard = () => {
         >
           Heatmap
         </Button>
-        {/* <Button
+        <Button
           className={`mb-2 ${
-            activePage === "StreetLegends"
+            activePage === "Most Occupied Street"
               ? "bg-blue-500 text-white"
               : "bg-gray-200 text-gray-700"
           }`}
-          onPress={() => setActivePage("StreetLegends")}
+          onPress={() => setActivePage("Most Occupied Street")}
         >
-          Streets
-        </Button> */}
+          Most Occupied Street
+        </Button>
         <Button
           className={`mb-2 ${
             activePage === "Announcement"
