@@ -281,6 +281,20 @@ function ViewObstruction() {
             </div>
           </div>
           <div className="mb-6">
+            <p className="text-lg font-bold mb-1">Street:</p>
+            <p className="text-gray-700">
+              {report.location || "No street information available"}
+            </p>
+          </div>
+          <div className="mb-6">
+            <p className="text-lg font-bold mb-1">Location:</p>
+            <p className="text-gray-700">
+              {report.exactLocation ||
+                "No exact location information available"}
+            </p>
+          </div>
+
+          <div className="mb-6">
             <p className="text-lg font-bold mb-1">Date Reported:</p>
             <p className="text-gray-700">
               {formatDate(report.createdAt)}{" "}
