@@ -291,12 +291,17 @@ export default function Charts() {
     useEffect(() => {
       const data = monthlyViolations.map((item) => ({
         month: months.indexOf(item.month),
-        year: selectedYear, // You'll need to modify your backend to include year in monthly data
+        year: selectedYear,
         reportCount: Object.values(item).reduce(
           (sum, val) => (typeof val === "number" ? sum + val : sum),
           0
         ),
         obstructionCount: 0, // You'll need to modify your backend to include obstructions
+        total: Object.values(item).reduce(
+          // Add this line
+          (sum, val) => (typeof val === "number" ? sum + val : sum),
+          0
+        ),
       }));
       setFilteredData(data);
     }, [selectedYear, monthlyViolations]);
