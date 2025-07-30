@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import { Card, Button, Spinner, Divider, Textarea } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../utils/apiClient";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import NoticeLetterTemplate from "../../../utils/NoticeLetterTemplate";
+import { toast } from "react-toastify";
 
 function ViewPlateNumber() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [report, setReport] = useState(null);
+  const [noticeNumber, setNoticeNumber] = useState(0);
   const [loading, setLoading] = useState(true);
   const [violations, setViolations] = useState("");
   const [buttonOpacity, setButtonOpacity] = useState({});
@@ -18,6 +22,7 @@ function ViewPlateNumber() {
         const { data } = await apiClient.get(`/plate/admin/platenumbers/${id}`);
         console.log(data.data);
         setReport(data.data);
+        setNoticeNumber(data.data.noticeNumber || 0);
         setViolations(
           data.data.violations.map((v) => v.types.join(", ")).join("\n")
         );
@@ -34,6 +39,20 @@ function ViewPlateNumber() {
     };
     fetchReport();
   }, [id]);
+
+  const updateNoticeNumber = async () => {
+    try {
+      const { data } = await apiClient.get(
+        `/plate/admin/platenumbers/update-notice-number/${id}`
+      );
+      setNoticeNumber(data.report.noticeNumber);
+      console.log("Notice number updated:", data.report.noticeNumber);
+      toast.success("Download notice number updated successfully.");
+    } catch (error) {
+      console.error("Error updating notice number:", error);
+      toast.error("Failed to update notice number.");
+    }
+  };
 
   const handleButtonClick = (reportId) => {
     const newButtonOpacity = {
@@ -133,7 +152,15 @@ function ViewPlateNumber() {
             <div className="flex-1 flex items-center gap-2">
               <span className="text-base text-gray-600 font-medium">Fine:</span>
               <span className="font-semibold text-green-600 text-lg">
-                {report?.offense?.fine ? '₱' + report.offense.fine : "None"}
+                {report?.offense?.fine ? "₱" + report.offense.fine : "None"}
+              </span>
+            </div>
+            <div className="flex-1 flex items-center gap-2">
+              <span className="text-base text-gray-600 font-medium">
+                Notice Letter Download:
+              </span>
+              <span className="font-semibold text-blue-600 text-lg">
+                {noticeNumber}
               </span>
             </div>
           </div>
@@ -148,6 +175,68 @@ function ViewPlateNumber() {
                 className="mr-2 mb-2 text-sm py-1 px-2 w-full"
               />
             </div>
+          </div>
+
+          <div className="mt-6">
+            <PDFDownloadLink
+              document={
+                <NoticeLetterTemplate
+                  date={
+                    report?.createdAt
+                      ? new Date(report.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : "No Date"
+                  }
+                  noticeNumber={
+                    report?.noticeNumber
+                      ? `${new Date(report.createdAt).getFullYear()}-${
+                          report.noticeNumber + 1
+                        }`
+                      : "N/A"
+                  }
+                  plateNumber={report?.plateNumber || "No Plate Number"}
+                  location={
+                    report?.violations?.[0]?.exactLocation ||
+                    report?.reportDetails?.[0]?.location ||
+                    "Unknown Location"
+                  }
+                  violationDateTime={
+                    report?.createdAt
+                      ? new Date(report.createdAt).toLocaleString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "No Date/Time"
+                  }
+                />
+              }
+              fileName={`Notice Letter ${report?.plateNumber || "Unknown"}.pdf`}
+            >
+              {({ loading, error }) => (
+                <Button
+                  mode="contained"
+                  style={{
+                    backgroundColor: loading ? "#cccccc" : "#f44336",
+                    marginTop: 10,
+                  }}
+                  disabled={loading || error}
+                  onPress={updateNoticeNumber}
+                  labelStyle={{ color: "white" }}
+                >
+                  {error
+                    ? "Error generating PDF"
+                    : loading
+                    ? "Generating PDF..."
+                    : "Download Parking Notice"}
+                </Button>
+              )}
+            </PDFDownloadLink>
           </div>
         </div>
       </Card>
