@@ -151,7 +151,7 @@ export default function Header() {
                     className="text-2xl font-extrabold tracking-tight text-gray-900 ml-1"
                     style={{ letterSpacing: "0.04em" }}
                   >
-                    BOVO
+                    BOVO APP
                   </span>
                 </span>
               </NavbarBrand>
