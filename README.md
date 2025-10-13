@@ -1,86 +1,85 @@
-# Client Thesis (Frontend)
+# 🚗 Client Thesis (Frontend)
 
-[![Netlify Status](https://img.shields.io/badge/deploy-status-green)](https://client-thesis.vercel.app)  
-**Live Demo**: https://client-thesis.vercel.app  
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![React](https://img.shields.io/badge/React-18.x-61dafb.svg?logo=react&logoColor=white)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5.x-646cff.svg?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-38bdf8.svg?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
-A modern React + Vite frontend client application built as part of a thesis project, using the MERN stack architecture.  
-
----
-
-## Table of Contents
-
-1. [About / Motivation](#about--motivation)  
-2. [Features](#features)  
-3. [Tech Stack](#tech-stack)  
-4. [Getting Started](#getting-started)  
-   1. [Prerequisites](#prerequisites)  
-   2. [Installation](#installation)  
-   3. [Running Locally](#running-locally)  
-   4. [Building / Deployment](#building--deployment)  
-5. [Folder Structure](#folder-structure)  
-6. [Environment Variables](#environment-variables)  
-7. [Contributing](#contributing)  
-8. [License](#license)  
-9. [Contact / Acknowledgements](#contact--acknowledgements)  
+**Client Thesis** is the frontend part of a capstone system designed to help users **report, monitor, and analyze parking violations** in real time.  
+It provides an intuitive interface for reporting incidents, viewing analytics, and interacting with semantic and sentiment analysis features powered by the backend API.
 
 ---
 
-## About / Motivation
+## 🧭 Table of Contents
 
-This is the client-side application developed for a thesis project aimed at **[insert your thesis goal, e.g. “improving user experience in online learning platforms” or “a system for managing X with real-time updates”]**.  
-It interacts with a backend API (Node / Express / MongoDB) and provides a responsive, interactive UI using React + Vite.
-
-Key motivations include:
-
-- Fast development feedback loop (thanks to Vite’s hot reloading)  
-- Modular, component-based front end  
-- Clean separation of concerns: API calls, state management, UI  
-- Responsive, intuitive UI for users and ease of extension  
-
----
-
-## Features
-
-- User authentication & authorization flows  
-- CRUD operations (Create / Read / Update / Delete) via REST API  
-- State management (e.g. React Context, Redux, or other library)  
-- Form validation, error handling, and UI feedback  
-- Responsive UI design (mobile & desktop)  
-- Deployment-ready build  
-
-*(Feel free to enumerate the specific features your thesis project has here — e.g. search, filters, real-time updates, charts, role-based access, etc.)*
+1. [About the Project](#-about-the-project)  
+2. [System Features](#-system-features)  
+3. [Tech Stack](#-tech-stack)  
+4. [Project Structure](#-project-structure)  
+5. [Setup & Installation](#-setup--installation)  
+6. [Environment Variables](#-environment-variables)  
+7. [Usage](#-usage)  
+8. [Deployment](#-deployment)  
+9. [Contributing](#-contributing)  
+10. [License](#-license)  
+11. [Contact & Acknowledgements](#-contact--acknowledgements)
 
 ---
 
-## Tech Stack
+## 🧩 About the Project
 
-| Layer / Concern | Framework / Library / Tool |
-|-----------------|-----------------------------|
-| Frontend        | React, Vite |
-| Styling / CSS   | Tailwind CSS / PostCSS (or your choice) |
-| Linting / Formatting | ESLint, Prettier |
-| Build / Bundling | Vite |
-| Backend (consumed) | Node.js, Express, MongoDB (you’d host separately) |
-| Deployment       | Vercel (or Netlify / your hosting provider) |
+This project serves as the **client-side interface** of a **Parking Violation Reporting and Analytics System**, created as part of a final-year thesis.  
+
+It allows users to:
+- Submit parking violation reports.
+- Upload images and descriptions of incidents.
+- View the list of submitted reports.
+- See analytics and summaries (semantic and sentiment-based insights).
+- Help administrators manage reports and identify violation trends.
+
+The backend API (Node.js + Express + MongoDB) processes, stores, and analyzes the data, while this client provides a fast, responsive, and accessible user interface.
 
 ---
 
-## Getting Started
+## 🚀 System Features
 
-### Prerequisites
+✅ **User Reporting**
+- Report parking violations with photos, locations, and descriptions.  
+- Supports up to 4 image uploads per report.
 
-- Node.js (v16+ recommended)  
-- npm or yarn  
-- Access to the backend API (or run it locally)  
+✅ **Real-Time Monitoring**
+- Displays list of submitted reports.  
+- Shows time, date, and location information.
 
-### Installation
+✅ **Semantic & Sentiment Analysis**
+- Automatically identifies violation type based on user description.  
+- Measures public sentiment (positive, neutral, or negative tone).
 
-```bash
-# Clone the repo
-git clone https://github.com/Juromelouise/client-thesis.git
-cd client-thesis
+✅ **Admin Tools**
+- Manage and verify user reports.  
+- Generate analytics dashboards.
 
-# Install dependencies
-npm install
-# or
-yarn install
+✅ **User Interface**
+- Clean, modern, and mobile-friendly interface built with React + Tailwind CSS.  
+- Smooth navigation between pages using React Router.
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technologies |
+|-----------|---------------|
+| **Frontend Framework** | [React 18](https://react.dev/), [Vite](https://vitejs.dev/) |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/), NextUI 2.6.10 |
+| **State Management** | React Context API / Hooks |
+| **Backend (API)** | Node.js + Express.js |
+| **Database** | MongoDB |
+| **Authentication** | Firebase Auth (Google Login) |
+| **Networking** | Axios |
+| **Version Control** | Git + GitHub |
+| **Deployment** | Vercel / Netlify |
+
+---
+
+## 🧱 Project Structure
+
