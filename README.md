@@ -43,23 +43,23 @@ The backend API (Node.js + Express + MongoDB) processes, stores, and analyzes th
 
 ## 🚀 System Features
 
-✅ **User Reporting**
+✅ **User Reporting**  
 - Report parking violations with photos, locations, and descriptions.  
 - Supports up to 4 image uploads per report.
 
-✅ **Real-Time Monitoring**
+✅ **Real-Time Monitoring**  
 - Displays list of submitted reports.  
 - Shows time, date, and location information.
 
-✅ **Semantic & Sentiment Analysis**
+✅ **Semantic & Sentiment Analysis**  
 - Automatically identifies violation type based on user description.  
 - Measures public sentiment (positive, neutral, or negative tone).
 
-✅ **Admin Tools**
+✅ **Admin Tools**  
 - Manage and verify user reports.  
 - Generate analytics dashboards.
 
-✅ **User Interface**
+✅ **User Interface**  
 - Clean, modern, and mobile-friendly interface built with React + Tailwind CSS.  
 - Smooth navigation between pages using React Router.
 
@@ -82,18 +82,20 @@ The backend API (Node.js + Express + MongoDB) processes, stores, and analyzes th
 ---
 
 ## 🧱 Project Structure
+
+```plaintext
 client-thesis/
-├── public/ # Static assets
+├── public/                 # Static assets
 ├── src/
-│ ├── assets/ # Images, logos, icons
-│ ├── components/ # Reusable UI components
-│ ├── pages/ # Page-level views (Report, Home, etc.)
-│ ├── context/ # React Context for app state
-│ ├── services/ # API and Axios configurations
-│ ├── navigation/ # Navigation, Drawer, and Header components
-│ ├── hooks/ # Custom hooks
-│ ├── App.jsx # Root component
-│ └── main.jsx # Entry point
+│   ├── assets/             # Images, logos, icons
+│   ├── components/         # Reusable UI components
+│   ├── pages/              # Page-level views (Report, Home, etc.)
+│   ├── context/            # React Context for app state
+│   ├── services/           # API and Axios configurations
+│   ├── navigation/         # Navigation, Drawer, and Header components
+│   ├── hooks/              # Custom hooks
+│   ├── App.jsx             # Root component
+│   └── main.jsx            # Entry point
 ├── .env.example
 ├── package.json
 ├── tailwind.config.js
