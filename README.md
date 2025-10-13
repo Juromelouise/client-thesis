@@ -82,4 +82,20 @@ The backend API (Node.js + Express + MongoDB) processes, stores, and analyzes th
 ---
 
 ## 🧱 Project Structure
-
+client-thesis/
+├── public/ # Static assets
+├── src/
+│ ├── assets/ # Images, logos, icons
+│ ├── components/ # Reusable UI components
+│ ├── pages/ # Page-level views (Report, Home, etc.)
+│ ├── context/ # React Context for app state
+│ ├── services/ # API and Axios configurations
+│ ├── navigation/ # Navigation, Drawer, and Header components
+│ ├── hooks/ # Custom hooks
+│ ├── App.jsx # Root component
+│ └── main.jsx # Entry point
+├── .env.example
+├── package.json
+├── tailwind.config.js
+├── vite.config.js
+└── README.md
